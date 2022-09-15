@@ -1,0 +1,126 @@
+%% SYSTLC: rpend RTDAC/USB2 (Visual C/C++)\
+%%    TMF: rtcon_rpend_vc_usb2_x64.tmf MAKE: make_rtw EXTMODE: rtcon_ext_comm  
+%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                                              %%
+%%  RT-CON                                                                      %%
+%%                                                                              %%
+%%  Packages:   RT-CON                                                          %%
+%%                                                                              %%
+%%  MATLAB versions:                 R2014a                                     %%
+%%  Simulink versions:               R2014a                                     %%
+%%                                                                              %%
+%%  (C) COPYRIGHT 2006 InTeCo Inc., 2K                                          %%
+%%  Last modification: 2006.12.30                                               %%
+%%  Last modification: 2012.10.04    KHa                                        %%
+%%  Last modification: 2013.04.29    KHa                                        %%
+%%  Last modification: 2016.07.15    KHa                                        %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%selectfile NULL_FILE
+
+%assign TargetType = "RT"
+%assign Language   = "C"
+%assign GenRTModel = 1
+
+%assign MatFileLogging = 1
+
+%include "codegenentry.tlc"
+
+%openfile fl = "%<CompiledModel.Name>.c", "a"
+
+#include <stdio.h>
+
+/* Final time from "Simulation Parameters"   */
+real_T finaltime = %<CompiledModel.StopTime>;
+real_T StepSize  = %<CompiledModel.FundamentalStepSize>; 
+////////////////////////////////////////////////
+//
+//  Return compilation date and time
+//
+char *GetDateAndTime( void ) {
+  static char AuxStr[ 128 ];
+  sprintf( AuxStr, "%s %s", __DATE__, __TIME__ );
+  return( AuxStr );
+}
+
+%closefile fl
+
+
+%% The contents between 'BEGIN_RTW_OPTIONS' and 'END_RTW_OPTIONS' are strictly 
+%% written by the standard format. We need to use this structure in RTW 
+%% options GUI function rtwoptionsdlg.m file.
+%%
+/%
+  BEGIN_RTW_OPTIONS
+
+  rtwoptions(1).prompt         = 'RT-CON options';
+  rtwoptions(1).type           = 'Category';
+  rtwoptions(1).enable         = 'on';  
+  rtwoptions(1).default        = 3;   % number of items under this category excluding this one.
+  
+  rtwoptions(1).popupstrings  = '';
+  rtwoptions(1).tlcvariable   = '';
+  rtwoptions(1).tooltip       = '';
+  rtwoptions(1).callback      = '';
+  rtwoptions(1).opencallback  = '';
+  rtwoptions(1).closecallback = '';
+  rtwoptions(1).makevariable  = '';
+
+  rtwoptions(2).prompt         = 'MAT-file variable name modifier';
+  rtwoptions(2).type           = 'Popup';
+  rtwoptions(2).default        = 'rt_';
+  rtwoptions(2).popupstrings   = 'rt_|_rt|none';
+  rtwoptions(2).tlcvariable    = 'LogVarNameModifier';
+  rtwoptions(2).tooltip        =  ['prefix rt_ to variable name,', sprintf('\n'), ...
+                                   'append _rt to variable name,', sprintf('\n'), ...
+                                   'or no modification'];
+
+  rtwoptions(3).prompt         = 'Display start-up message';
+  rtwoptions(3).type           = 'Checkbox';
+  rtwoptions(3).default        = 'off';
+  rtwoptions(3).tlcvariable    = 'StartupMessage';
+  rtwoptions(3).makevariable   = 'STARTUP_MESSAGE';
+  rtwoptions(3).tooltip        = ['Display message when executable loaded'];
+
+rtwoptions(4).prompt         = 'Use HIGH_PRIORITY class';
+  
+rtwoptions(4).type           = 'Checkbox';
+  
+rtwoptions(4).default        = 'off';
+  
+rtwoptions(4).tlcvariable    = 'Use_HIGH_PRIORITY';
+ 
+ rtwoptions(4).makevariable   = 'USE_HIGH_PRIORITY';
+ 
+rtwoptions(4).tooltip        = ['Boost the priority to the HIGH_PRIORITY class'];
+
+
+
+  rtwoptions(5).prompt         = 'Use REALTIME_PRIORITY class';
+ 
+ rtwoptions(5).type           = 'Checkbox';
+ 
+ rtwoptions(5).default        = 'off';
+ 
+ rtwoptions(5).tlcvariable    = 'Use_REALTIME_PRIORITY';
+ 
+ rtwoptions(5).makevariable   = 'USE_REALTIME_PRIORITY';
+ 
+ rtwoptions(5).tooltip        = ['Boost the priority to the REALTIME_PRIORITY class']; 
+
+
+  %----------------------------------------%
+  % Configure RTW code generation settings %
+  %----------------------------------------%
+  
+  rtwgensettings.BuildDirSuffix = '_RTCON';
+  rtwgensettings.Version        = '1';
+
+  rtwgensettings.DerivedFrom    = 'grt.tlc';
+  
+  END_RTW_OPTIONS 
+ %/
+
