@@ -108,7 +108,7 @@ ALT_MATLAB_ROOT      = C:\PROGRA~1\MATLAB\R2021b
 MATLAB_BIN           = C:\Program Files\MATLAB\R2021b\bin
 ALT_MATLAB_BIN       = C:\PROGRA~1\MATLAB\R2021b\bin
 MASTER_ANCHOR_DIR    = 
-START_DIR            = C:\Users\saumans\Documents\reaction-pendulum
+START_DIR            = C:\Users\saumans\Documents\IntegrationProject\IntegrationProject2022
 SOLVER               = 
 NUMST                = 2
 TID01EQ              = 1
@@ -192,6 +192,10 @@ MATLAB_INCLUDES = $(MATLAB_INCLUDES);$(MATLAB_ROOT)\rtw\c\src
 MATLAB_INCLUDES = $(MATLAB_INCLUDES);$(MATLAB_ROOT)\rtw\c\src\ext_mode\common
 MATLAB_INCLUDES = $(MATLAB_INCLUDES);$(MATLAB_ROOT)\toolbox\coder\rtiostream\src
 MATLAB_INCLUDES = $(MATLAB_INCLUDES);$(MATLAB_ROOT)\toolbox\coder\rtiostream\src\utils
+MATLAB_INCLUDES = $(MATLAB_INCLUDES);$(MATLAB_ROOT)\toolbox\dsp\include
+MATLAB_INCLUDES = $(MATLAB_INCLUDES);$(MATLAB_ROOT)\toolbox\dsp\extern\src\export\include\src
+MATLAB_INCLUDES = $(MATLAB_INCLUDES);$(MATLAB_ROOT)\toolbox\dsp\extern\src\export\include
+MATLAB_INCLUDES = $(MATLAB_INCLUDES);$(MATLAB_ROOT)\toolbox\shared\dsp\vision\matlab\include
 
 INCLUDE = .;$(RELATIVE_PATH_TO_ANCHOR);$(MATLAB_INCLUDES);$(INCLUDE)
 

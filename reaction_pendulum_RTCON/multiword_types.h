@@ -7,9 +7,9 @@
  *
  * Code generation for model "reaction_pendulum".
  *
- * Model version              : 7.4
+ * Model version              : 7.5
  * Simulink Coder version : 9.6 (R2021b) 14-May-2021
- * C source code generated on : Thu Sep 15 16:00:31 2022
+ * C source code generated on : Thu Sep 22 14:04:14 2022
  *
  * Target selection: rtcon_rpend_usb2.tlc
  * Note: GRT includes extra infrastructure and instrumentation for prototyping

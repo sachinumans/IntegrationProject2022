@@ -7,9 +7,9 @@
  *
  * Code generation for model "reaction_pendulum".
  *
- * Model version              : 7.4
+ * Model version              : 7.5
  * Simulink Coder version : 9.6 (R2021b) 14-May-2021
- * C source code generated on : Thu Sep 15 16:00:31 2022
+ * C source code generated on : Thu Sep 22 14:04:14 2022
  *
  * Target selection: rtcon_rpend_usb2.tlc
  * Note: GRT includes extra infrastructure and instrumentation for prototyping
@@ -66,25 +66,27 @@ static const char_T * rtDataTypeNames[] = {
 
 /* data type transitions for block I/O structure */
 static DataTypeTransition rtBTransitions[] = {
-  { (char_T *)(&reaction_pendulum_B.Gain), 0, 0, 19 }
+  { (char_T *)(&reaction_pendulum_B.Control), 0, 0, 21 }
   ,
 
-  { (char_T *)(&reaction_pendulum_DW.Memory1_PreviousInput), 0, 0, 2 },
+  { (char_T *)(&reaction_pendulum_DW.Chirp_CURRENT_STEP), 0, 0, 7 },
 
-  { (char_T *)(&reaction_pendulum_DW.PlotState_PWORK.LoggedData[0]), 11, 0, 6 }
+  { (char_T *)(&reaction_pendulum_DW.PlotState_PWORK.LoggedData[0]), 11, 0, 6 },
+
+  { (char_T *)(&reaction_pendulum_DW.Chirp_SWEEP_DIRECTION), 8, 0, 1 }
 };
 
 /* data type transition table for block I/O structure */
 static DataTypeTransitionTable rtBTransTable = {
-  3U,
+  4U,
   rtBTransitions
 };
 
 /* data type transitions for Parameters structure */
 static DataTypeTransition rtPTransitions[] = {
-  { (char_T *)(&reaction_pendulum_P.SFunction_P2_Size[0]), 0, 0, 30 },
+  { (char_T *)(&reaction_pendulum_P.SFunction_P2_Size[0]), 0, 0, 29 },
 
-  { (char_T *)(&reaction_pendulum_P.ResetEncoders1_CurrentSetting), 3, 0, 3 }
+  { (char_T *)(&reaction_pendulum_P.ResetEncoders1_CurrentSetting), 3, 0, 2 }
 };
 
 /* data type transition table for Parameters structure */

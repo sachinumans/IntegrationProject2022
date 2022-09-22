@@ -7,9 +7,9 @@
  *
  * Code generation for model "reaction_pendulum".
  *
- * Model version              : 7.4
+ * Model version              : 7.5
  * Simulink Coder version : 9.6 (R2021b) 14-May-2021
- * C source code generated on : Thu Sep 15 16:00:31 2022
+ * C source code generated on : Thu Sep 22 14:04:14 2022
  *
  * Target selection: rtcon_rpend_usb2.tlc
  * Note: GRT includes extra infrastructure and instrumentation for prototyping
@@ -36,56 +36,56 @@ RT_MODEL_reaction_pendulum_T *const reaction_pendulum_M = &reaction_pendulum_M_;
 void reaction_pendulum_step(void)
 {
   /* local block i/o variables */
+  real_T rtb_Chirp;
   real_T rtb_DCAnglerad;
   real_T rtb_Memory;
 
-  /* Clock: '<S1>/Clock1' incorporates:
-   *  SignalGenerator: '<Root>/Signal Generator'
-   */
-  rtb_Memory = reaction_pendulum_M->Timing.t[0];
+  /* S-Function (sdspchirp): '<Root>/Chirp' */
+  /* DSP System Toolbox Chirp (sdspchirp) - '<Root>/Chirp' */
+  /* Unidirectional Quadratic  */
+  {
+    real_T *y = &rtb_Chirp;
+    real_T instantPhase = 0.0;
+    instantPhase = (reaction_pendulum_DW.Chirp_SWEEP_DIRECTION == 0) ?
+      reaction_pendulum_DW.Chirp_MIN_FREQ *
+      reaction_pendulum_DW.Chirp_CURRENT_STEP + reaction_pendulum_DW.Chirp_BETA *
+      pow(reaction_pendulum_DW.Chirp_CURRENT_STEP, 3) / 3.0 :
+      reaction_pendulum_DW.Chirp_PERIOD_THETA -
+      reaction_pendulum_DW.Chirp_MIN_FREQ * (reaction_pendulum_P.Chirp_Tsweep -
+      reaction_pendulum_DW.Chirp_CURRENT_STEP) - reaction_pendulum_DW.Chirp_BETA
+      * pow((reaction_pendulum_P.Chirp_Tsweep -
+             reaction_pendulum_DW.Chirp_CURRENT_STEP), 3) / 3.0;
+    instantPhase -= (int_T)instantPhase;
+    *y = cos(DSP_TWO_PI * (instantPhase + reaction_pendulum_DW.Chirp_ACC_PHASE)
+             + reaction_pendulum_P.Chirp_phase);
+    reaction_pendulum_DW.Chirp_CURRENT_STEP += 0.05;/* Go to next time step */
+    if (reaction_pendulum_DW.Chirp_CURRENT_STEP >
+        (reaction_pendulum_P.Chirp_Tsweep + DBL_EPSILON)) {
+      reaction_pendulum_DW.Chirp_CURRENT_STEP =
+        reaction_pendulum_DW.Chirp_CURRENT_STEP -
+        reaction_pendulum_P.Chirp_Tsweep;
+      reaction_pendulum_DW.Chirp_ACC_PHASE += instantPhase;
+      if (reaction_pendulum_DW.Chirp_ACC_PHASE > 1.0) {
+        reaction_pendulum_DW.Chirp_ACC_PHASE -= floor
+          (reaction_pendulum_DW.Chirp_ACC_PHASE);
+      }
+    }
+  }
 
-  /* Gain: '<S1>/Gain' incorporates:
-   *  Constant: '<S1>/deltaFreq'
-   *  Constant: '<S1>/targetTime'
-   *  Product: '<S1>/Product'
-   */
-  reaction_pendulum_B.Gain = (reaction_pendulum_P.ChirpSignal_f2 -
-    reaction_pendulum_P.ChirpSignal_f1) * 6.2831853071795862 /
-    reaction_pendulum_P.ChirpSignal_T * reaction_pendulum_P.Gain_Gain;
-
-  /* ManualSwitch: '<Root>/Reset Encoders2' incorporates:
-   *  ManualSwitch: '<Root>/Reset Encoders1'
-   */
-  if (reaction_pendulum_P.ResetEncoders2_CurrentSetting == 1) {
-    /* ManualSwitch: '<Root>/Reset Encoders2' incorporates:
+  /* ManualSwitch: '<Root>/Reset Encoders1' */
+  if (reaction_pendulum_P.ResetEncoders1_CurrentSetting == 1) {
+    /* ManualSwitch: '<Root>/Reset Encoders1' incorporates:
      *  Constant: '<Root>/DC_Ctrl1'
      */
     reaction_pendulum_B.Control = reaction_pendulum_P.DC_Ctrl1_Value;
-  } else if (reaction_pendulum_P.ResetEncoders1_CurrentSetting == 1) {
+  } else {
     /* ManualSwitch: '<Root>/Reset Encoders1' incorporates:
      *  Gain: '<Root>/Gain1'
-     *  ManualSwitch: '<Root>/Reset Encoders2'
-     *  SignalGenerator: '<Root>/Signal Generator'
      */
-    reaction_pendulum_B.Control = sin(6.2831853071795862 * rtb_Memory *
-      reaction_pendulum_P.SignalGenerator_Frequency) *
-      reaction_pendulum_P.SignalGenerator_Amplitude *
-      reaction_pendulum_P.Gain1_Gain;
-  } else {
-    /* ManualSwitch: '<Root>/Reset Encoders2' incorporates:
-     *  Clock: '<S1>/Clock1'
-     *  Constant: '<S1>/initialFreq'
-     *  ManualSwitch: '<Root>/Reset Encoders1'
-     *  Product: '<S1>/Product1'
-     *  Product: '<S1>/Product2'
-     *  Sum: '<S1>/Sum'
-     *  Trigonometry: '<S1>/Output'
-     */
-    reaction_pendulum_B.Control = sin((rtb_Memory * reaction_pendulum_B.Gain +
-      6.2831853071795862 * reaction_pendulum_P.ChirpSignal_f1) * rtb_Memory);
+    reaction_pendulum_B.Control = reaction_pendulum_P.Gain1_Gain * rtb_Chirp;
   }
 
-  /* End of ManualSwitch: '<Root>/Reset Encoders2' */
+  /* End of ManualSwitch: '<Root>/Reset Encoders1' */
 
   /* Gain: '<S2>/Gain2' */
   rtb_Memory = reaction_pendulum_P.Gain2_Gain * reaction_pendulum_B.Control;
@@ -117,10 +117,8 @@ void reaction_pendulum_step(void)
   /* End of ManualSwitch: '<Root>/Reset Encoders' */
 
   /* Gain: '<S2>/Gain' */
-  reaction_pendulum_B.Gain_j[0] = reaction_pendulum_P.Gain_Gain_d[0] *
-    rtb_Memory;
-  reaction_pendulum_B.Gain_j[1] = reaction_pendulum_P.Gain_Gain_d[1] *
-    rtb_Memory;
+  reaction_pendulum_B.Gain[0] = reaction_pendulum_P.Gain_Gain[0] * rtb_Memory;
+  reaction_pendulum_B.Gain[1] = reaction_pendulum_P.Gain_Gain[1] * rtb_Memory;
 
   /* Constant: '<S2>/Prescaler' */
   reaction_pendulum_B.Prescaler = reaction_pendulum_P.Prescaler_Value;
@@ -166,35 +164,23 @@ void reaction_pendulum_step(void)
   reaction_pendulum_B.DCConverttoA1 = reaction_pendulum_P.DCConverttoA1_Gain *
     reaction_pendulum_B.SFunction_o4;
 
-  /* ToWorkspace: '<Root>/To Workspace1' */
-  {
-    real_T u[1];
-
-    {
-      int32_T i;
-      for (i = 0; i < 1; i++) {
-        u[i] = 0.0;
-      }
-    }
-
-    rt_UpdateLogVar((LogVar *)(LogVar*)
-                    reaction_pendulum_DW.ToWorkspace1_PWORK.LoggedData, u, 0);
-  }
+  /* SignalConversion generated from: '<Root>/To Workspace' */
+  reaction_pendulum_B.TmpSignalConversionAtToWorkspac[0] =
+    reaction_pendulum_B.PendulumAnglerad;
+  reaction_pendulum_B.TmpSignalConversionAtToWorkspac[1] =
+    reaction_pendulum_B.DCVelrads;
+  reaction_pendulum_B.TmpSignalConversionAtToWorkspac[2] =
+    reaction_pendulum_B.DCConverttoA1;
 
   /* ToWorkspace: '<Root>/To Workspace' */
-  {
-    real_T u[1];
+  rt_UpdateLogVar((LogVar *)(LogVar*)
+                  (reaction_pendulum_DW.ToWorkspace_PWORK.LoggedData),
+                  &reaction_pendulum_B.TmpSignalConversionAtToWorkspac[0], 0);
 
-    {
-      int32_T i;
-      for (i = 0; i < 1; i++) {
-        u[i] = 0.0;
-      }
-    }
-
-    rt_UpdateLogVar((LogVar *)(LogVar*)
-                    reaction_pendulum_DW.ToWorkspace_PWORK.LoggedData, u, 0);
-  }
+  /* ToWorkspace: '<Root>/To Workspace1' */
+  rt_UpdateLogVar((LogVar *)(LogVar*)
+                  (reaction_pendulum_DW.ToWorkspace1_PWORK.LoggedData),
+                  &reaction_pendulum_B.Control, 0);
 
   /* Matfile logging */
   rt_UpdateTXYLogVars(reaction_pendulum_M->rtwLogInfo,
@@ -330,7 +316,7 @@ void reaction_pendulum_initialize(void)
     reaction_pendulum_M->Timing.sampleHits = (&mdlSampleHits[0]);
   }
 
-  rtmSetTFinal(reaction_pendulum_M, 50.0);
+  rtmSetTFinal(reaction_pendulum_M, 70.0);
   reaction_pendulum_M->Timing.stepSize0 = 0.05;
   reaction_pendulum_M->Timing.stepSize1 = 0.05;
 
@@ -358,15 +344,15 @@ void reaction_pendulum_initialize(void)
   }
 
   /* External mode info */
-  reaction_pendulum_M->Sizes.checksums[0] = (3083505139U);
-  reaction_pendulum_M->Sizes.checksums[1] = (257278914U);
-  reaction_pendulum_M->Sizes.checksums[2] = (662995725U);
-  reaction_pendulum_M->Sizes.checksums[3] = (2156173835U);
+  reaction_pendulum_M->Sizes.checksums[0] = (1491503641U);
+  reaction_pendulum_M->Sizes.checksums[1] = (1496605738U);
+  reaction_pendulum_M->Sizes.checksums[2] = (1164095791U);
+  reaction_pendulum_M->Sizes.checksums[3] = (893755602U);
 
   {
     static const sysRanDType rtAlwaysEnabled = SUBSYS_RAN_BC_ENABLE;
     static RTWExtModeInfo rt_ExtModeInfo;
-    static const sysRanDType *systemRan[6];
+    static const sysRanDType *systemRan[5];
     reaction_pendulum_M->extModeInfo = (&rt_ExtModeInfo);
     rteiSetSubSystemActiveVectorAddresses(&rt_ExtModeInfo, systemRan);
     systemRan[0] = &rtAlwaysEnabled;
@@ -374,7 +360,6 @@ void reaction_pendulum_initialize(void)
     systemRan[2] = &rtAlwaysEnabled;
     systemRan[3] = &rtAlwaysEnabled;
     systemRan[4] = &rtAlwaysEnabled;
-    systemRan[5] = &rtAlwaysEnabled;
     rteiSetModelMappingInfoPtr(reaction_pendulum_M->extModeInfo,
       &reaction_pendulum_M->SpecialInfo.mappingInfo);
     rteiSetChecksumsPtr(reaction_pendulum_M->extModeInfo,
@@ -537,8 +522,8 @@ void reaction_pendulum_initialize(void)
         {
           real_T const **sfcnUPtrs = (real_T const **)
             &reaction_pendulum_M->NonInlinedSFcns.Sfcn0.UPtrs1;
-          sfcnUPtrs[0] = reaction_pendulum_B.Gain_j;
-          sfcnUPtrs[1] = &reaction_pendulum_B.Gain_j[1];
+          sfcnUPtrs[0] = reaction_pendulum_B.Gain;
+          sfcnUPtrs[1] = &reaction_pendulum_B.Gain[1];
           ssSetInputPortSignalPtrs(rts, 1, (InputPtrsType)&sfcnUPtrs[0]);
           _ssSetInputPortNumDimensions(rts, 1, 1);
           ssSetInputPortWidth(rts, 1, 2);
@@ -710,38 +695,9 @@ void reaction_pendulum_initialize(void)
     rtmGetTFinal(reaction_pendulum_M), reaction_pendulum_M->Timing.stepSize0,
     (&rtmGetErrorStatus(reaction_pendulum_M)));
 
-  /* SetupRuntimeResources for ToWorkspace: '<Root>/To Workspace1' */
-  {
-    int_T dimensions[1] = { 1 };
-
-    reaction_pendulum_DW.ToWorkspace1_PWORK.LoggedData = rt_CreateLogVar(
-      reaction_pendulum_M->rtwLogInfo,
-      0.0,
-      rtmGetTFinal(reaction_pendulum_M),
-      reaction_pendulum_M->Timing.stepSize0,
-      (&rtmGetErrorStatus(reaction_pendulum_M)),
-      "CtrlIn",
-      SS_DOUBLE,
-      0,
-      0,
-      0,
-      1,
-      1,
-      dimensions,
-      NO_LOGVALDIMS,
-      (NULL),
-      (NULL),
-      0,
-      5,
-      0.05,
-      1);
-    if (reaction_pendulum_DW.ToWorkspace1_PWORK.LoggedData == (NULL))
-      return;
-  }
-
   /* SetupRuntimeResources for ToWorkspace: '<Root>/To Workspace' */
   {
-    int_T dimensions[1] = { 1 };
+    int_T dimensions[1] = { 3 };
 
     reaction_pendulum_DW.ToWorkspace_PWORK.LoggedData = rt_CreateLogVar(
       reaction_pendulum_M->rtwLogInfo,
@@ -754,7 +710,7 @@ void reaction_pendulum_initialize(void)
       0,
       0,
       0,
-      1,
+      3,
       1,
       dimensions,
       NO_LOGVALDIMS,
@@ -765,6 +721,35 @@ void reaction_pendulum_initialize(void)
       0.05,
       1);
     if (reaction_pendulum_DW.ToWorkspace_PWORK.LoggedData == (NULL))
+      return;
+  }
+
+  /* SetupRuntimeResources for ToWorkspace: '<Root>/To Workspace1' */
+  {
+    int_T dimensions[2] = { 1, 1 };
+
+    reaction_pendulum_DW.ToWorkspace1_PWORK.LoggedData = rt_CreateLogVar(
+      reaction_pendulum_M->rtwLogInfo,
+      0.0,
+      rtmGetTFinal(reaction_pendulum_M),
+      reaction_pendulum_M->Timing.stepSize0,
+      (&rtmGetErrorStatus(reaction_pendulum_M)),
+      "CtrlIn",
+      SS_DOUBLE,
+      0,
+      0,
+      1,
+      1,
+      2,
+      dimensions,
+      NO_LOGVALDIMS,
+      (NULL),
+      (NULL),
+      0,
+      5,
+      0.05,
+      1);
+    if (reaction_pendulum_DW.ToWorkspace1_PWORK.LoggedData == (NULL))
       return;
   }
 
@@ -782,6 +767,32 @@ void reaction_pendulum_initialize(void)
     if (ssGetErrorStatus(rts) != (NULL))
       return;
   }
+
+  /* InitializeConditions for S-Function (sdspchirp): '<Root>/Chirp' */
+
+  /* DSP System Toolbox Chirp (sdspchirp) - '<Root>/Chirp' */
+  /* Unidirectional Quadratic  */
+  if (reaction_pendulum_P.Chirp_f1 > reaction_pendulum_P.Chirp_f0) {
+    reaction_pendulum_DW.Chirp_BETA = fabs(reaction_pendulum_P.Chirp_f1 -
+      reaction_pendulum_P.Chirp_f0) / (reaction_pendulum_P.Chirp_t1 *
+      reaction_pendulum_P.Chirp_t1);
+    reaction_pendulum_DW.Chirp_MIN_FREQ = reaction_pendulum_P.Chirp_f0;
+  } else {
+    reaction_pendulum_DW.Chirp_BETA = fabs(reaction_pendulum_P.Chirp_f1 -
+      reaction_pendulum_P.Chirp_f0) / (2 * reaction_pendulum_P.Chirp_Tsweep -
+      reaction_pendulum_P.Chirp_t1) / reaction_pendulum_P.Chirp_t1;
+    reaction_pendulum_DW.Chirp_MIN_FREQ = reaction_pendulum_P.Chirp_f0 -
+      reaction_pendulum_DW.Chirp_BETA * reaction_pendulum_P.Chirp_Tsweep *
+      reaction_pendulum_P.Chirp_Tsweep;
+  }
+
+  reaction_pendulum_DW.Chirp_PERIOD_THETA = reaction_pendulum_DW.Chirp_MIN_FREQ *
+    reaction_pendulum_P.Chirp_Tsweep + reaction_pendulum_DW.Chirp_BETA * pow
+    (reaction_pendulum_P.Chirp_Tsweep, 3) / 3.0;
+  reaction_pendulum_DW.Chirp_SWEEP_DIRECTION = (reaction_pendulum_P.Chirp_f1 >
+    reaction_pendulum_P.Chirp_f0) ? 0 : 1;
+  reaction_pendulum_DW.Chirp_ACC_PHASE = 0.0;
+  reaction_pendulum_DW.Chirp_CURRENT_STEP = 0.0;
 
   /* InitializeConditions for Memory: '<S2>/Memory1' */
   reaction_pendulum_DW.Memory1_PreviousInput =
@@ -806,7 +817,7 @@ void reaction_pendulum_terminate(void)
 #include <stdio.h>
 
 /* Final time from "Simulation Parameters"   */
-real_T finaltime = 50.0;
+real_T finaltime = 70.0;
 real_T StepSize = 0.05;
 
 ////////////////////////////////////////////////

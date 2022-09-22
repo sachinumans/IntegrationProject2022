@@ -7,9 +7,9 @@
  *
  * Code generation for model "reaction_pendulum".
  *
- * Model version              : 7.4
+ * Model version              : 7.5
  * Simulink Coder version : 9.6 (R2021b) 14-May-2021
- * C source code generated on : Thu Sep 15 16:00:31 2022
+ * C source code generated on : Thu Sep 22 14:04:14 2022
  *
  * Target selection: rtcon_rpend_usb2.tlc
  * Note: GRT includes extra infrastructure and instrumentation for prototyping
@@ -22,7 +22,6 @@
 #define RTW_HEADER_reaction_pendulum_h_
 #include <stddef.h>
 #include <string.h>
-#include <math.h>
 #include <float.h>
 #ifndef reaction_pendulum_COMMON_INCLUDES_
 #define reaction_pendulum_COMMON_INCLUDES_
@@ -132,10 +131,9 @@
 
 /* Block signals (default storage) */
 typedef struct {
-  real_T Gain;                         /* '<S1>/Gain' */
-  real_T Control;                      /* '<Root>/Reset Encoders2' */
+  real_T Control;                      /* '<Root>/Reset Encoders1' */
   real_T Saturation;                   /* '<S2>/Saturation' */
-  real_T Gain_j[2];                    /* '<S2>/Gain' */
+  real_T Gain[2];                      /* '<S2>/Gain' */
   real_T Prescaler;                    /* '<S2>/Prescaler' */
   real_T ThermFlag;                    /* '<S2>/ThermFlag' */
   real_T SFunction_o1;                 /* '<S2>/S-Function' */
@@ -149,10 +147,16 @@ typedef struct {
   real_T Periodms;                     /* '<S2>/Gain1' */
   real_T DCVelrads;                    /* '<S2>/Divide' */
   real_T DCConverttoA1;                /* '<S2>/DC Convert to [A]1' */
+  real_T TmpSignalConversionAtToWorkspac[3];
 } B_reaction_pendulum_T;
 
 /* Block states (default storage) for system '<Root>' */
 typedef struct {
+  real_T Chirp_CURRENT_STEP;           /* '<Root>/Chirp' */
+  real_T Chirp_ACC_PHASE;              /* '<Root>/Chirp' */
+  real_T Chirp_BETA;                   /* '<Root>/Chirp' */
+  real_T Chirp_MIN_FREQ;               /* '<Root>/Chirp' */
+  real_T Chirp_PERIOD_THETA;           /* '<Root>/Chirp' */
   real_T Memory1_PreviousInput;        /* '<S2>/Memory1' */
   real_T Memory_PreviousInput;         /* '<S2>/Memory' */
   struct {
@@ -161,11 +165,13 @@ typedef struct {
 
   struct {
     void *LoggedData;
-  } ToWorkspace1_PWORK;                /* '<Root>/To Workspace1' */
+  } ToWorkspace_PWORK;                 /* '<Root>/To Workspace' */
 
   struct {
     void *LoggedData;
-  } ToWorkspace_PWORK;                 /* '<Root>/To Workspace' */
+  } ToWorkspace1_PWORK;                /* '<Root>/To Workspace1' */
+
+  boolean_T Chirp_SWEEP_DIRECTION;     /* '<Root>/Chirp' */
 } DW_reaction_pendulum_T;
 
 /* Parameters (default storage) */
@@ -176,18 +182,25 @@ struct P_reaction_pendulum_T_ {
   real_T h;                            /* Variable: h
                                         * Referenced by: '<S2>/S-Function'
                                         */
-  real_T ChirpSignal_T;                /* Mask Parameter: ChirpSignal_T
-                                        * Referenced by: '<S1>/targetTime'
+  real_T Chirp_Tsweep;                 /* Mask Parameter: Chirp_Tsweep
+                                        * Referenced by: '<Root>/Chirp'
                                         */
-  real_T ChirpSignal_f1;               /* Mask Parameter: ChirpSignal_f1
-                                        * Referenced by:
-                                        *   '<S1>/deltaFreq'
-                                        *   '<S1>/initialFreq'
+  real_T Chirp_f0;                     /* Mask Parameter: Chirp_f0
+                                        * Referenced by: '<Root>/Chirp'
                                         */
-  real_T ChirpSignal_f2;               /* Mask Parameter: ChirpSignal_f2
-                                        * Referenced by: '<S1>/deltaFreq'
+  real_T Chirp_f1;                     /* Mask Parameter: Chirp_f1
+                                        * Referenced by: '<Root>/Chirp'
                                         */
-  real_T Gain1_Gain;                   /* Expression: 0.75
+  real_T Chirp_phase;                  /* Mask Parameter: Chirp_phase
+                                        * Referenced by: '<Root>/Chirp'
+                                        */
+  real_T Chirp_t1;                     /* Mask Parameter: Chirp_t1
+                                        * Referenced by: '<Root>/Chirp'
+                                        */
+  real_T DC_Ctrl1_Value;               /* Expression: 0.0
+                                        * Referenced by: '<Root>/DC_Ctrl1'
+                                        */
+  real_T Gain1_Gain;                   /* Expression: 0.3
                                         * Referenced by: '<Root>/Gain1'
                                         */
   real_T Reset_Value;                  /* Expression: 1
@@ -195,18 +208,6 @@ struct P_reaction_pendulum_T_ {
                                         */
   real_T Normal_Value;                 /* Expression: 0
                                         * Referenced by: '<Root>/Normal'
-                                        */
-  real_T DC_Ctrl1_Value;               /* Expression: 0.2
-                                        * Referenced by: '<Root>/DC_Ctrl1'
-                                        */
-  real_T SignalGenerator_Amplitude;    /* Expression: 1
-                                        * Referenced by: '<Root>/Signal Generator'
-                                        */
-  real_T SignalGenerator_Frequency;    /* Expression: 1/4
-                                        * Referenced by: '<Root>/Signal Generator'
-                                        */
-  real_T Gain_Gain;                    /* Expression: 0.5
-                                        * Referenced by: '<S1>/Gain'
                                         */
   real_T Gain2_Gain;                   /* Expression: 1
                                         * Referenced by: '<S2>/Gain2'
@@ -217,7 +218,7 @@ struct P_reaction_pendulum_T_ {
   real_T Saturation_LowerSat;          /* Expression: -1
                                         * Referenced by: '<S2>/Saturation'
                                         */
-  real_T Gain_Gain_d[2];               /* Expression: [1;1]
+  real_T Gain_Gain[2];                 /* Expression: [1;1]
                                         * Referenced by: '<S2>/Gain'
                                         */
   real_T Prescaler_Value;              /* Expression: 0
@@ -256,10 +257,6 @@ struct P_reaction_pendulum_T_ {
   uint8_T ResetEncoders1_CurrentSetting;
                             /* Computed Parameter: ResetEncoders1_CurrentSetting
                              * Referenced by: '<Root>/Reset Encoders1'
-                             */
-  uint8_T ResetEncoders2_CurrentSetting;
-                            /* Computed Parameter: ResetEncoders2_CurrentSetting
-                             * Referenced by: '<Root>/Reset Encoders2'
                              */
   uint8_T ResetEncoders_CurrentSetting;
                              /* Computed Parameter: ResetEncoders_CurrentSetting

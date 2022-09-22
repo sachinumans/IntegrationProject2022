@@ -1,10 +1,39 @@
-data = iddata(Meas(2:end, :), CtrlIn(2:end), h);
+clear all
+load Identified_system4_data.mat
+
+% data = iddata(Meas(2:end, :), CtrlIn(2:end), h);
+u = squeeze(CtrlIn.signals.values(2:end));
+data = iddata(Meas.signals.values(2:end, :), u, h);
+Meas = Meas.signals.values(2:end, :);
+CtrlIn = CtrlIn.signals.values(2:end);
 Id_init = 3.88E-4;
 I_init = 0.0338;
 
-initParam = {'MotorConstant', 1; 'PendInertiaInverse', 1/I_init; 'DampCoefDisk', 0.002; 'DampCoefPend', 0.002; 'Mass', 1.5; 'COMdiv', 0.05; 'DiskInertiaInverse', 1/Id_init; 'MotorResistanceInverse', 1e-3};
+initParam = {'MotorConstant', 1; 'PendInertiaInverse', 1/I_init;...
+    'DampCoefDisk', 0.002; 'DampCoefPend', 0.002; 'Mass', 1.5;...
+    'COMdiv', 0.05*0; 'DiskInertiaInverse', 1/Id_init;...
+    'MotorResistanceInverse', 1e-3};
 
 sys_init = idgrey(@dyns, initParam, 'd', Ts=h);
+
+sys_init.Structure.Parameters(1).Minimum = 0;
+sys_init.Structure.Parameters(2).Minimum = 0;
+sys_init.Structure.Parameters(3).Minimum = 0;
+sys_init.Structure.Parameters(4).Minimum = 0;
+sys_init.Structure.Parameters(5).Minimum = 1;
+sys_init.Structure.Parameters(6).Minimum = 0;
+sys_init.Structure.Parameters(7).Minimum = 0;
+
+sys_init.Structure.Parameters(1).Maximum = 10;
+sys_init.Structure.Parameters(2).Maximum = 100;
+sys_init.Structure.Parameters(3).Maximum = 1;
+sys_init.Structure.Parameters(4).Maximum = 1;
+sys_init.Structure.Parameters(5).Maximum = 2;
+sys_init.Structure.Parameters(6).Maximum = 0.1;
+sys_init.Structure.Parameters(7).Maximum = 10;
+sys_init.Structure.Parameters(8).Maximum = 10;
+
+sys_init.Structure.Parameters(6).Free = false;
 
 % Get system
 opt = greyestOptions; opt.EnforceStability = 1;
@@ -19,11 +48,11 @@ sysEst_d.StateUnit = {'rad'; 'rad/s'; 'rad/s'};
 sysEst_d.OutputUnit = {'rad'; 'rad/s'; 'A'};
 sysEst_d.InputUnit = {'V'};
 
-sysEst = d2c(sysEst_d);
+% sysEst = d2c(sysEst_d);
 
 % Unpack estimated parameters
 param_ = getpvec(sysEst_dGrey);
-param.alph = param_(1);
+param.k = param_(1);
 param.I = 1/param_(2);
 param.b = param_(3);
 param.c = param_(4);
@@ -33,21 +62,21 @@ param.Id = 1/param_(7);
 param.Rm = 1/param_(8);
 
 
-
-
+save Identified_system4 sysEst_d param
+% save Identified_system1_data CtrlIn Meas h
 
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [A, B, C, D] = dyns(alph, Ii, b, c, m, l, Idi, Rmi, Ts)
+function [A, B, C, D] = dyns(k, Ii, b, c, m, l, Idi, Rmi, Ts)
     g = 9.81;
     thetaStar = 0;
     
     Ac = [0, 1, 0;...
         -(m*g*l)*Ii * cos(thetaStar), -c*Ii, -b*Ii;...
         0, 0, -b*Idi];
-    Bc = [0; -alph*Ii; -alph*Idi];
+    Bc = [0; -k*Rmi*Ii; -k*Rmi*Idi];
     Cc = [1, 0, 0;...
         0, 0, 1;...
         0, 0, 0];
