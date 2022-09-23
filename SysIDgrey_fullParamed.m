@@ -1,5 +1,5 @@
 clear all
-load Exp5_fullSweepFinalCropped.mat
+load ExtraData_exp1.mat
 
 % data = iddata(Meas(2:end, :), CtrlIn(2:end), h);
 u = squeeze(CtrlIn.signals.values(2:end));
@@ -60,7 +60,7 @@ param_ = getpvec(sysEst_dGrey);
 % param.p3 = param_(6);
 
 
-save Identified_system8 sysEst_d
+save Identified_system9_extra_data sysEst_d
 % save Identified_system1_data CtrlIn Meas h
 
 

@@ -1,7 +1,7 @@
 clear all;
 close all;
-load Identified_system8.mat
-load ValidationData_fullSweepQuadCropped.mat
+load Identified_system9_extra_data.mat
+load ValExtraData_exp2.mat
 h = 0.05;
 
 t = CtrlIn.time(5/h:end);
