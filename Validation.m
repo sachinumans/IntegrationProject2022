@@ -1,10 +1,10 @@
 clear all;
 close all;
-load Identified_system2.mat
-load Identified_system2_data.mat
+load Identified_system8.mat
+load ValidationData_fullSweepQuadCropped.mat
 h = 0.05;
 
-t = CtrlIn.time;
+t = CtrlIn.time(5/h:end);
 
 u = squeeze(CtrlIn.signals.values);
 Y = squeeze(Meas.signals.values);
@@ -12,15 +12,18 @@ Y = squeeze(Meas.signals.values);
 y_est = lsim(sysEst_d, u, t);
 
 
-titles = ["Pendulum angle","Angular velocity", "Current"];
+titles = ["Pendulum angle","Angular velocity"];
 figure(1); 
-for idx = 1:3
+for idx = 1:2
     subplot(3, 1, idx)
     plot(t, y_est(:,idx));hold on
     plot(t, Y(:,idx));
     title(titles(idx))
 end
 legend("Estimate","Measurement")
+subplot(3, 1, 3)
+    plot(t, u);
+    title("Control input")
 % 
 % 
 % figure(2);
