@@ -1,4 +1,4 @@
-function [A,B,C,D,x0,sv,Y,Uf] = subspaceID(u,y,s,n,figure_num)
+function [sys] = pi_moesp(u,y,s,n,h)
 
 [rows_y,columns_y]=size(y);
 [ysize,l]=size(y); % Dimensions of outputs
@@ -11,10 +11,10 @@ L=triu(R)';
 L32 = L(2*s+1:3*s,s+1:2*s);
 [U_svd,S_svd]=svd(L32);
 sv = diag(S_svd);
-figure(figure_num)
-stairs(sv,'^');
-xlim([0 40]);
-title("SVD PI-moesp");      
+% figure()
+% stairs(sv,'^');
+% xlim([0 40]);
+% title("SVD PI-moesp");      
 
 sv = diag(S_svd);
 A = U_svd(1:s-1,1:n)\U_svd(2:s,1:n);
@@ -31,6 +31,8 @@ end
 tmp = Phi\y;
 x0 = tmp(1:n)';
 B = tmp(n+1:2*n);
-D = tmp(2*n+1:end);     
+D = tmp(2*n+1:end);   
+
+sys = ss(A,B,C,D,h);
 end
 

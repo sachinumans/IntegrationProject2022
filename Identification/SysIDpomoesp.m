@@ -1,9 +1,9 @@
 clear; clc; close all;
 
-load Exp5_fullSweepFinalCropped.mat
+load Data/Exp5_fullSweepFinalCropped.mat
 
 [sys, X, VAF, RMSE] = subspaceID(Meas.time(4/h:end),CtrlIn.signals.values,...
-    Meas.signals.values,75,"po-moesp",[0 20]);
+    Meas.signals.values(:,2),75,"po-moesp",[0 20]);
 % [sys, X, VAF, RMSE] = subspaceID(Meas.time(4/h:end),CtrlIn.signals.values,...
 %     Meas.signals.values,50,"po-moesp",[0 20], 4);
 
@@ -70,7 +70,8 @@ end
             
             Z = [Up_; Yp];                       % Create the instrumental variable 
 
-            H = [[Uf'; Uf(:,1:end-1)'] Z' Yf'];                   % Create transpose of stacked U_f, Z and Y_f
+            H = [Uf' Z' Yf'];                   % Create transpose of stacked U_f, Z and Y_f
+%             H = [[Uf'; Uf(:,1:end-1)'] Z' Yf'];                   % Create transpose of stacked U_f, Z and Y_f
             [~, R] = qr(H, 0);                  % Get R of QR factorisation of stacked U_f, Z and Y_f
             Rt = triu(R);                       % Take upper triangular part of R
             L = Rt';                            % L such that H' = L*Q'
