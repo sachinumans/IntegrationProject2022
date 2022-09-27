@@ -2,10 +2,10 @@ clear; clc; close all;
 
 load Exp5_fullSweepFinalCropped.mat
 
-% [sys, X, VAF, RMSE] = subspaceID(Meas.time(4/h:end),CtrlIn.signals.values,...
-%     Meas.signals.values,50,"po-moesp",[0 20]);
 [sys, X, VAF, RMSE] = subspaceID(Meas.time(4/h:end),CtrlIn.signals.values,...
-    Meas.signals.values,50,"po-moesp",[0 20], 4);
+    Meas.signals.values,75,"po-moesp",[0 20]);
+% [sys, X, VAF, RMSE] = subspaceID(Meas.time(4/h:end),CtrlIn.signals.values,...
+%     Meas.signals.values,50,"po-moesp",[0 20], 4);
 
 VAF, RMSE
 

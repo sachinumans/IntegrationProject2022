@@ -16,7 +16,7 @@ initParam = {'MotorConstant', 1; 'PendInertiaInverse', 1/I_init;...
 
 Parameters = {-1;1/I_init;0.002;0.002;1.5;0.05;1/Id_init};
 
-sys_init = idnlgrey(@dyns, [2 1 3], Parameters);
+sys_init = idnlgrey(@dyns, [2 1 3], Parameters, [0;0;0], h);
 
 % sys_init.Structure.Parameters(1).Minimum = 0;
 % sys_init.Structure.Parameters(2).Minimum = 0;
