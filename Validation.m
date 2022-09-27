@@ -1,6 +1,5 @@
-clear all;
-close all;
-load Identified_system9_extra_data.mat
+clear; close all;
+load Identified_system_PO-MOESP.mat
 load ValExtraData_exp2.mat
 h = 0.05;
 
@@ -9,7 +8,7 @@ t = CtrlIn.time(5/h:end);
 u = squeeze(CtrlIn.signals.values);
 Y = squeeze(Meas.signals.values);
 
-y_est = lsim(sysEst_d, u, t);
+y_est = lsim(sys, u, t);
 
 
 titles = ["Pendulum angle","Angular velocity"];

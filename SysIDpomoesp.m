@@ -2,10 +2,14 @@ clear; clc; close all;
 
 load Exp5_fullSweepFinalCropped.mat
 
+% [sys, X, VAF, RMSE] = subspaceID(Meas.time(4/h:end),CtrlIn.signals.values,...
+%     Meas.signals.values,50,"po-moesp",[0 20]);
 [sys, X, VAF, RMSE] = subspaceID(Meas.time(4/h:end),CtrlIn.signals.values,...
-    Meas.signals.values,50,"po-moesp",[0 20]);
+    Meas.signals.values,50,"po-moesp",[0 20], 4);
 
 VAF, RMSE
+
+save Identified_system_PO-MOESP sys
 
 
 function [sys, X, VAF, RMSE] = subspaceID(t,u,y,s,method,lim,n)
