@@ -8,11 +8,11 @@ y_est = lsim(sys, u, t);
 
 
 titles = ["Pendulum angle","Angular velocity"];
-figure(1); 
+figure(); 
 for idx = 1:size(sys,1)
     subplot(3, 1, idx)
-    plot(t, y_est(:,idx));hold on
-    plot(t, Y(:,idx));
+    plot(t, y_est(:,idx), "b");hold on
+    plot(t, Y(:,idx), "r--");
     title(titles(idx))
 end
 legend("Estimate","Measurement")

@@ -4,13 +4,13 @@ hwinit();
 
 %% Identification
 % Load data
-load Identification\Data\Exp5_fullSweepFinalCropped.mat
+load Identification\Data\CLunstable_data2.mat
 u = CtrlIn.signals.values;
 y = Meas.signals.values;
-t = CtrlIn.time(4/h:end);
-
+y(:,1) = y(:,1) - pi;
+t = CtrlIn.time; 
 s = 75;
-n = 5;
+n = 3;
 
 %%% PI-MOESP
 sysPI1 = pi_moesp(u,y(:,1),s,n,h);
@@ -28,9 +28,11 @@ sys2PO = po_moesp(t,u,y(:,2),s,"po-moesp", [0 10], n);
 sysPO = ss(blkdiag(sys1PO.A, sys2PO.A), [sys1PO.B;sys2PO.B],...
     blkdiag(sys1PO.C, sys2PO.C), [sys1PO.D;sys2PO.D], h);
 
+close all;
 [VAFpo, RMSEpo] = Validation(sysPO, CtrlIn, y, t);
+set(gcf, "Name", "Training")
 
-%%% Comparison --> Go with PO
+%%% Comparison --> Go with PO/PI
 RelDiff = abs(RMSEpi./RMSEpo*100 - 100);
 
 [val,ind] = max(RelDiff);
@@ -42,6 +44,37 @@ else
     sys = sysPO;
     disp("Chosen method is PO-MOESP");
 end
+
+%% Validation
+% Load data
+load Identification\Data\CLunstable_ValData.mat
+u = CtrlIn.signals.values;
+y = Meas.signals.values;
+y(:,1) = y(:,1) - pi;
+t = CtrlIn.time;
+
+[VAFval, RMSEval] = Validation(sys, CtrlIn, y, t);
+set(gcf, "Name", "Validation 1")
+
+load Identification\Data\CLunstable_ValData2.mat
+u = CtrlIn.signals.values;
+y = Meas.signals.values;
+y(:,1) = y(:,1) - pi;
+t = CtrlIn.time;
+
+[VAFval2, RMSEval2] = Validation(sys, CtrlIn, y, t);
+set(gcf, "Name", "Validation 2")
+
+
+load Identification\Data\CLunstable_ValData3.mat
+u = CtrlIn.signals.values;
+y = Meas.signals.values;
+y(:,1) = y(:,1) - pi;
+t = CtrlIn.time;
+
+[VAFval3, RMSEval3] = Validation(sys, CtrlIn, y, t);
+set(gcf, "Name", "Validation 3")
+
 
 %% Controller design
 
