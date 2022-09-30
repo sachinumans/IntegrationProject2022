@@ -6,7 +6,7 @@ function [K] = Synth_LQR(sys)
 nx = size(sys.A, 1);
 
 Q = blkdiag(eye(nx/2), zeros(nx/2)); % State cost
-R = 1e-3; % Input cost
+R = 1; % Input cost
 N = zeros(nx,1); % Cross cost
 
 [K,~,~] = dlqr(sys.A,sys.B,Q,R,N);

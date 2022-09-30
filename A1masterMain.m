@@ -19,6 +19,7 @@ sysPI2 = pi_moesp(u,y(:,2),s,n,h);
 sysPI = ss(blkdiag(sysPI1.A, sysPI2.A), [sysPI1.B;sysPI2.B],...
     blkdiag(sysPI1.C, sysPI2.C), [sysPI1.D;sysPI2.D], h);
 
+warning off
 [VAFpi, RMSEpi] = Validation(sysPI, CtrlIn, y, t);
 
 %%% PO-MOESP
@@ -75,6 +76,9 @@ t = CtrlIn.time;
 [VAFval3, RMSEval3] = Validation(sys, CtrlIn, y, t);
 set(gcf, "Name", "Validation 3")
 
+warning on
+
+% Possibly merge double estimated poles
 
 %% Controller design
 
