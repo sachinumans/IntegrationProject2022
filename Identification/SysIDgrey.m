@@ -1,5 +1,5 @@
 clear all
-load Exp5_fullSweepFinalCropped.mat
+load Data\grey_MotorID_ramp_cropped.mat
 
 % data = iddata(Meas(2:end, :), CtrlIn(2:end), h);
 u = squeeze(CtrlIn.signals.values(2:end));
@@ -62,7 +62,7 @@ param.Id = 1/param_(7);
 param.Rm = 1/param_(8);
 
 
-save Identified_system5 sysEst_d param
+% save Identified_system5 sysEst_d param
 % save Identified_system1_data CtrlIn Meas h
 
 

@@ -94,13 +94,22 @@ end
 
 disp("The system is controllable")
 rank(ctrb(sys)) == 2*n
+Rc = rank(ctrb(sys));
 
 disp("The system is observable")
 rank(obsv(sys)) == 2*n
 
+nx = size(sys.A, 1);
 K = Synth_LQR(sys);
+% [Abar,Bbar,Cbar,T,k] = ctrbf(sys.A, sys.B, sys.C);
+% Ac = Abar(nx-Rc+1:end, nx-Rc+1:end);
+% Bc = Bbar(nx-Rc+1:end);
+% Cc = Cbar(:, nx-Rc+1:end);
+
+% K = place(Ac, Bc, 0.7+(1:Rc)*0.001);
+% K = [zeros(1, nx-Rc) K];
 disp("Controller poles are at: "); disp(abs(eig(sys.A-sys.B*K)));
-sysObserver = Synth_Obs(sys, K);
-disp("Closed loop observer poles are at: "); disp(abs(pole(sysObserver)));
+% sysObserver = Synth_Obs(sys, K);
+% disp("Closed loop observer poles are at: "); disp(abs(pole(sysObserver)));
 
 

@@ -1,6 +1,6 @@
 clear all;
 
-load MotorID_data
+load Data\grey_MotorID_ramp_cropped.mat
 
 Id_init = 3.88E-4;
 
@@ -10,7 +10,7 @@ Meas = Meas.signals.values(2:end, :);
 CtrlIn = CtrlIn.signals.values(2:end);
 
 initParam = {'MotorConstant', 1; 'DampCoefDisk', 0.002; 'DiskInertiaInverse', 1/Id_init;...
-    'MotorResistanceInverse', 1e-3};
+    'MotorResistanceInverse', 1};
 
 sys_init = idgrey(@dyns, initParam, 'd', Ts=h);
 
