@@ -1,5 +1,7 @@
 clear all; close all; clc;
 
+updateSys = 0;
+
 hwinit();
 
 %% Identification
@@ -12,6 +14,7 @@ t = CtrlIn.time;
 s = 75;
 n = 3;
 
+if updateSys
 %%% PI-MOESP
 sysPI1 = pi_moesp(u,y(:,1),s,n,h);
 sysPI2 = pi_moesp(u,y(:,2),s,n,h);
@@ -46,6 +49,10 @@ else
     disp("Chosen method is PO-MOESP");
 end
 
+save IdentifiedSystem sys
+
+
+
 %% Validation
 % Load data
 load Identification\Data\CLunstable_ValData.mat
@@ -79,6 +86,9 @@ set(gcf, "Name", "Validation 3")
 warning on
 
 % Possibly merge double estimated poles
+else
+    load IdentifiedSystem
+end
 
 %% Controller design
 
@@ -89,6 +99,8 @@ disp("The system is observable")
 rank(obsv(sys)) == 2*n
 
 K = Synth_LQR(sys);
-sysObserver = Synth_Obs(sys);
+disp("Controller poles are at: "); disp(abs(eig(sys.A-sys.B*K)));
+sysObserver = Synth_Obs(sys, K);
+disp("Closed loop observer poles are at: "); disp(abs(pole(sysObserver)));
 
 
