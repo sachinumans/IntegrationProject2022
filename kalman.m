@@ -30,6 +30,8 @@ p_kf = x_hat(1:end-1,:)';
 P_kf = diagP_tmp;  
 % 2X2XN-vector with the covariance matrix of p_kf
 
+
+% % Extended
 c = 343; %Speed of sound in meters per second
 
 F = eye(3);
