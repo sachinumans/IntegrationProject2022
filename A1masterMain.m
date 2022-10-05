@@ -1,10 +1,16 @@
 clear all; close all; clc;
+addpath(genpath('Identification'))
+addpath(genpath('ControllerDesign'))
 
 updateSys = 0;
+Method = "Greybox nonlin"; % Load / Subspace / Greybox
+
 
 hwinit();
 
 %% Identification
+switch Method
+    case "Subspace"
 % Load data
 load Identification\Data\CLunstable_data2.mat
 u = CtrlIn.signals.values;
@@ -22,7 +28,6 @@ sysPI2 = pi_moesp(u,y(:,2),s,n,h);
 sysPI = ss(blkdiag(sysPI1.A, sysPI2.A), [sysPI1.B;sysPI2.B],...
     blkdiag(sysPI1.C, sysPI2.C), [sysPI1.D;sysPI2.D], h);
 
-warning off
 [VAFpi, RMSEpi] = Validation(sysPI, CtrlIn, y, t);
 
 %%% PO-MOESP
@@ -53,7 +58,7 @@ save IdentifiedSystem sys
 
 
 
-%% Validation
+%%% Validation
 % Load data
 load Identification\Data\CLunstable_ValData.mat
 u = CtrlIn.signals.values;
@@ -83,13 +88,67 @@ t = CtrlIn.time;
 [VAFval3, RMSEval3] = Validation(sys, CtrlIn, y, t);
 set(gcf, "Name", "Validation 3")
 
-warning on
-
 % Possibly merge double estimated poles
 else
-    load IdentifiedSystem
+    load Identification\IdentifiedSystem
 end
 
+case "Greybox"
+%%% Identify motor
+% load Identification\Data\grey_MotorID_ramp_cropped.mat
+load Identification\Data\grey_chirp_0025_075Hz_cropped.mat
+
+[motorparams, x0] = idMotor(CtrlIn, Meas, h);
+[A, B, C, D] = MotorDyns(motorparams.k, motorparams.b, 1/motorparams.Id, h);
+motorSys = ss(A, B, C, D, h); clear A B C D;
+
+[motorVAF, motorRMSE] = Validation(motorSys, CtrlIn, Meas.signals.values(:,2), CtrlIn.time, x0);
+
+%%% Identify pendulum
+load Identification\Data\grey_PendulumFreeSwing_cropped.mat
+
+pendparams = idPend(CtrlIn, Meas, h);
+% [A, B, C, D] = PendDyns(pendparams.l, pendparams.m, pendparams.c, 1/pendparams.Ip, h);
+% pendSys = ss(A, B, C, D, h); clear A B C D;
+% [pendVAF, pendRMSE] = Validation(pendSys, CtrlIn, Meas.signals.values(:,1), CtrlIn.time, x0);
+
+%%% Identify pendulum + motor
+load Identification\Data\grey_chirp_0025_075Hz_cropped.mat
+
+[params, combiSys, x0] = idCombi(CtrlIn, Meas, h, motorparams, pendparams);
+[combiVAF, combiRMSE] = Validation(combiSys, CtrlIn, Meas.signals.values, CtrlIn.time, x0);
+
+    case "Greybox nonlin"
+%%% Identify motor
+% load Identification\Data\grey_MotorID_ramp_cropped.mat
+load Identification\Data\grey_chirp_0025_075Hz_cropped.mat
+
+[motorparams, x0] = idMotor(CtrlIn, Meas, h);
+[A, B, C, D] = MotorDyns(motorparams.k, motorparams.b, 1/motorparams.Id, h);
+motorSys = ss(A, B, C, D, h); clear A B C D;
+
+[motorVAF, motorRMSE] = Validation(motorSys, CtrlIn, Meas.signals.values(:,2), CtrlIn.time, x0);
+
+%%% Identify pendulum
+load Identification\Data\grey_PendulumFreeSwing_cropped.mat
+
+[pendparams, pendSys] = idPendnl(CtrlIn, Meas, h);
+% [A, B, C, D] = PendDyns(pendparams.l, pendparams.m, pendparams.c, 1/pendparams.Ip, h);
+% pendSys = ss(A, B, C, D, h); clear A B C D;
+% [pendVAF, pendRMSE] = Validation(pendSys, CtrlIn, Meas.signals.values(:,1), CtrlIn.time, x0);
+
+%%% Identify pendulum + motor
+load Identification\Data\grey_chirp_0025_075Hz_cropped.mat
+
+[params, combiSys, x0] = idCombi(CtrlIn, Meas, h, motorparams, pendparams);
+[combiVAF, combiRMSE] = Validation(combiSys, CtrlIn, Meas.signals.values, CtrlIn.time, x0);
+
+
+otherwise
+    load Identification\IdentifiedSystem
+end
+
+return
 %% Controller design
 
 disp("The system is controllable")

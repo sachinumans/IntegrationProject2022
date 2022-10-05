@@ -1,11 +1,19 @@
-function [VAF, RMSE] = Validation(sys,U, meas, t)
+function [VAF, RMSE] = Validation(sys,U, meas, t, x0)
+arguments
+    sys
+    U
+    meas
+    t
+    x0 = zeros(size(sys.A, 1), 1)
+end
 h = 0.05;
 
 u = squeeze(U.signals.values);
 Y = squeeze(meas);
 
-y_est = lsim(sys, u, t);
-
+warning off
+y_est = lsim(sys, u, t, x0);
+warning on
 
 titles = ["Pendulum angle","Angular velocity"];
 figure(); 
