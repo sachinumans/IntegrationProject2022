@@ -9,22 +9,26 @@ initParam = {'dCOM_hinge', 0.05; 'Mass', 1.5; 'HingeFriction', 1e-5;...
     'PendInertiaInverse', 1/I_init};
 ID = idgrey(@PendDyns, initParam, 'd', Ts=h);
 
-% Set bounds
+% Set bounds: l, m, c, Ipi
 ID.Structure.Parameters(1).Minimum = 0;
 ID.Structure.Parameters(2).Minimum = 1;
 ID.Structure.Parameters(3).Minimum = 0;
-ID.Structure.Parameters(3).Minimum = 1;
+ID.Structure.Parameters(4).Minimum = 1;
 % 
-% ID.Structure.Parameters(1).Maximum = 0.1;
-% ID.Structure.Parameters(2).Maximum = 3;
-% ID.Structure.Parameters(3).Maximum = 0.01;
-% ID.Structure.Parameters(3).Maximum = 200;
+ID.Structure.Parameters(1).Maximum = 0.1;
+ID.Structure.Parameters(2).Maximum = 2;
+ID.Structure.Parameters(3).Maximum = 0.1;
+ID.Structure.Parameters(4).Maximum = 75;
 
 % Get system
 opt = greyestOptions;
 opt.EnforceStability = 1;
 opt.InitialState = 'backcast'; % 'estimate'
 [sysEst_dGrey, x0] = greyest(data, ID, opt);
+
+figure();
+opt = compareOptions('InitialCondition', 'e');
+compare(data, sysEst_dGrey, opt);
 
 % Pack estimated parameters
 param_ = getpvec(sysEst_dGrey);

@@ -5,7 +5,7 @@ I_init = 0.0338;
 % Botch together angular velocity of pendulum
 y = Meas.signals.values(:, 1);
 dy = gradient(y, h);
-dy = dy.* max(y)/max(dy);
+% dy = dy.* max(y)/max(dy);
 
 % figure(); hold on
 % plot(y, 'k');% plot(dy, 'b');
@@ -40,15 +40,13 @@ sys = nlgreyest(data, ID);
 
 for i = 1:2; sys.InitialStates(i).Fixed = false; end
 
-figure();
-opt = compareOptions('InitialCondition', 'e');
-compare(data, sys, opt)
-
 % Pack estimated parameters
 param_ = getpvec(sys);
 pendparams.l = param_(1);
 pendparams.m = param_(2);
 pendparams.c = param_(3);
 pendparams.Ip = 1/param_(4);
+
+figure(); compare(data, sys, compareOptions('InitialCondition', 'e'));
 
 end

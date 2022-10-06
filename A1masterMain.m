@@ -2,7 +2,7 @@ clear all; close all; clc;
 addpath(genpath('Identification'))
 addpath(genpath('ControllerDesign'))
 
-Method = "Greybox"; % Load / Subspace / Greybox / Greybox nonlin
+Method = "Greybox nonlin"; % Load / Subspace / Greybox / Greybox nonlin
 
 
 hwinit();
@@ -101,7 +101,7 @@ motorSys = ss(A, B, C, D, h); clear A B C D;
 [motorVAF, motorRMSE] = Validation(motorSys, CtrlIn, Meas.signals.values(:,2), CtrlIn.time, x0);
 
 %%% Identify pendulum
-load Identification\Data\grey_PendulumFreeSwing_cropped.mat
+load Identification\Data\greyest_ID_pendulum_small_angle.mat
 
 pendparams = idPend(CtrlIn, Meas, h);
 % [A, B, C, D] = PendDyns(pendparams.l, pendparams.m, pendparams.c, 1/pendparams.Ip, h);
@@ -116,7 +116,6 @@ load Identification\Data\grey_chirp_0025_075Hz_cropped.mat
 
     case "Greybox nonlin"
 %%% Identify motor
-% load Identification\Data\grey_MotorID_ramp_cropped.mat
 load Identification\Data\grey_chirp_0025_075Hz_cropped.mat
 
 [motorparams, x0] = idMotor(CtrlIn, Meas, h);
@@ -125,19 +124,21 @@ motorSys = ss(A, B, C, D, h); clear A B C D;
 
 [motorVAF, motorRMSE] = Validation(motorSys, CtrlIn, Meas.signals.values(:,2), CtrlIn.time, x0);
 
+load Identification\Data\grey_MotorID_ramp_cropped.mat
+[~, ~] = Validation(motorSys, CtrlIn, Meas.signals.values(:,2), CtrlIn.time);
+
 %%% Identify pendulum
-load Identification\Data\grey_PendulumFreeSwing_cropped.mat
+load Identification\Data\greyest_ID_pendulum_small_angle.mat
 
 [pendparams, pendSys] = idPendnl(CtrlIn, Meas, h);
-% [A, B, C, D] = PendDyns(pendparams.l, pendparams.m, pendparams.c, 1/pendparams.Ip, h);
-% pendSys = ss(A, B, C, D, h); clear A B C D;
-% [pendVAF, pendRMSE] = Validation(pendSys, CtrlIn, Meas.signals.values(:,1), CtrlIn.time, x0);
 
-%%% Identify pendulum + motor
-load Identification\Data\grey_chirp_0025_075Hz_cropped.mat
+%%% Syntesise complete system
+sys = getSys_from_Param(motorparams, pendparams);
 
-[params, combiSys, x0] = idCombi(CtrlIn, Meas, h, motorparams, pendparams);
-[combiVAF, combiRMSE] = Validation(combiSys, CtrlIn, Meas.signals.values, CtrlIn.time, x0);
+load Identification\Data\grey_chirp_LowFr_smallAngle_cropped2.mat
+data = iddata(Meas.signals.values, CtrlIn.signals.values, h);
+figure(); compare(data, sys, compareOptions('InitialCondition', 'e'));
+
 
 
 otherwise

@@ -2,9 +2,12 @@ function [param, sys, x0] = idCombi(CtrlIn, Meas, h, motorparams, pendparams)
 
 data = iddata(Meas.signals.values, CtrlIn.signals.values, h);
 
+% initParam = {'MotorConstant', motorparams.k; 'DampCoefDisk', motorparams.b;...
+%     'DiskInertiaInverse', 1/motorparams.Id; 'InertiaEqLength', pendparams.l_eq_est;...
+%     'DampCoefPend', -pendparams.c; 'Mass', 2.5; 'dCOM_hinge', 0.05};
 initParam = {'MotorConstant', motorparams.k; 'DampCoefDisk', motorparams.b;...
-    'DiskInertiaInverse', 1/motorparams.Id; 'InertiaEqLength', pendparams.l_eq_est;...
-    'DampCoefPend', -pendparams.c; 'Mass', 2.5; 'dCOM_hinge', 0.05};
+    'DiskInertiaInverse', 1/motorparams.Id; 'PendInertiaInverse', 1/pendparams.Ip;...
+    'DampCoefPend', pendparams.c; 'Mass', pendparams.m; 'dCOM_hinge', pendparams.l};
 
 ID = idgrey(@CombiDyns, initParam, 'd', Ts=h);
 
@@ -20,7 +23,7 @@ ID.Structure.Parameters(7).Maximum = 0.1;
 % Get system
 opt = greyestOptions;
 opt.EnforceStability = 1;
-opt.InitialState = 'estimate';
+% opt.InitialState = 'estimate';
 % opt.InitialState = 'backcast';
 [sys, x0] = greyest(data, ID, opt);
 

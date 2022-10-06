@@ -1,6 +1,6 @@
 function [A, B, C, D] = MotorDyns(k, b, Idi, Ts)
     Ac = -b*Idi;
-    Bc = k;
+    Bc = -k*Idi;
     Cc = 1;
     Dc = 0;
     
