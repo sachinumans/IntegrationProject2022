@@ -2,13 +2,15 @@ clear all; close all; clc;
 addpath(genpath('Identification'))
 addpath(genpath('ControllerDesign'))
 
-Method = "Greybox nonlin"; % Load / Subspace / Greybox / Greybox nonlin
+Method = "Load"; % Load / Subspace / Greybox / Greybox nonlin
 
 
 hwinit();
 
 %% Identification
 switch Method
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     case "Subspace"
 % Load data
 load Identification\Data\CLunstable_data2.mat
@@ -17,11 +19,11 @@ y = Meas.signals.values;
 y(:,1) = y(:,1) - pi;
 t = CtrlIn.time; 
 s = 75;
-n = 3;
+nx = 3;
 
 %%% PI-MOESP
-sysPI1 = pi_moesp(u,y(:,1),s,n,h);
-sysPI2 = pi_moesp(u,y(:,2),s,n,h);
+sysPI1 = pi_moesp(u,y(:,1),s,nx,h);
+sysPI2 = pi_moesp(u,y(:,2),s,nx,h);
 
 sysPI = ss(blkdiag(sysPI1.A, sysPI2.A), [sysPI1.B;sysPI2.B],...
     blkdiag(sysPI1.C, sysPI2.C), [sysPI1.D;sysPI2.D], h);
@@ -29,8 +31,8 @@ sysPI = ss(blkdiag(sysPI1.A, sysPI2.A), [sysPI1.B;sysPI2.B],...
 [VAFpi, RMSEpi] = Validation(sysPI, CtrlIn, y, t);
 
 %%% PO-MOESP
-sys1PO = po_moesp(t,u,y(:,1),s,"po-moesp", [0 10], n);
-sys2PO = po_moesp(t,u,y(:,2),s,"po-moesp", [0 10], n);
+sys1PO = po_moesp(t,u,y(:,1),s,"po-moesp", [0 10], nx);
+sys2PO = po_moesp(t,u,y(:,2),s,"po-moesp", [0 10], nx);
 
 sysPO = ss(blkdiag(sys1PO.A, sys2PO.A), [sys1PO.B;sys2PO.B],...
     blkdiag(sys1PO.C, sys2PO.C), [sys1PO.D;sys2PO.D], h);
@@ -52,8 +54,8 @@ else
     disp("Chosen method is PO-MOESP");
 end
 
-save IdentifiedSystem sys
-
+save Identification\IdentifiedSystem sys
+nx = size(sys.A, 1);
 
 
 %%% Validation
@@ -88,8 +90,10 @@ set(gcf, "Name", "Validation 3")
 
 % Possibly merge double estimated poles
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 case "Greybox"
+
 %%% Identify motor
 % load Identification\Data\grey_MotorID_ramp_cropped.mat
 load Identification\Data\grey_chirp_0025_075Hz_cropped.mat
@@ -114,6 +118,9 @@ load Identification\Data\grey_chirp_0025_075Hz_cropped.mat
 [params, combiSys, x0] = idCombi(CtrlIn, Meas, h, motorparams, pendparams);
 [combiVAF, combiRMSE] = Validation(combiSys, CtrlIn, Meas.signals.values, CtrlIn.time, x0);
 
+nx = 3;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     case "Greybox nonlin"
 %%% Identify motor
 load Identification\Data\grey_chirp_0025_075Hz_cropped.mat
@@ -133,39 +140,36 @@ load Identification\Data\greyest_ID_pendulum_small_angle.mat
 [pendparams, pendSys] = idPendnl(CtrlIn, Meas, h);
 
 %%% Syntesise complete system
-sys = getSys_from_Param(motorparams, pendparams);
+sysC = getSys_from_Param(motorparams, pendparams);
 
 load Identification\Data\grey_chirp_LowFr_smallAngle_cropped2.mat
 data = iddata(Meas.signals.values, CtrlIn.signals.values, h);
-figure(); compare(data, sys, compareOptions('InitialCondition', 'e'));
+figure(); compare(data, sysC, compareOptions('InitialCondition', 'e'));
 
+sys = c2d(sysC, h);
 
-
+save Identification\IdentifiedSystem sys 
+nx = 3;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 otherwise
     load Identification\IdentifiedSystem
+    load Identification\Data\grey_chirp_LowFr_smallAngle_cropped2.mat
+    data = iddata(Meas.signals.values, CtrlIn.signals.values, h);
+    figure(); compare(data, sys, compareOptions('InitialCondition', 'e'));
+    nx = size(sys.A, 1);
 end
 
-return
 %% Controller design
 
 disp("The system is controllable")
-rank(ctrb(sys)) == 2*n
-Rc = rank(ctrb(sys));
-
+rank(ctrb(sys)) == nx
 disp("The system is observable")
-rank(obsv(sys)) == 2*n
+rank(obsv(sys)) == nx
 
-nx = size(sys.A, 1);
-K = Synth_LQR(sys);
-% [Abar,Bbar,Cbar,T,k] = ctrbf(sys.A, sys.B, sys.C);
-% Ac = Abar(nx-Rc+1:end, nx-Rc+1:end);
-% Bc = Bbar(nx-Rc+1:end);
-% Cc = Cbar(:, nx-Rc+1:end);
+nx = size(sys.A, 1); nu = 1; ny = 2;
+K = Synth_LQR(sys, "Greybox up");
 
-% K = place(Ac, Bc, 0.7+(1:Rc)*0.001);
-% K = [zeros(1, nx-Rc) K];
 disp("Controller poles are at: "); disp(abs(eig(sys.A-sys.B*K)));
-% sysObserver = Synth_Obs(sys, K);
-% disp("Closed loop observer poles are at: "); disp(abs(pole(sysObserver)));
+
 
 
