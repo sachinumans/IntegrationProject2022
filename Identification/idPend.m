@@ -1,6 +1,6 @@
 function [pendparams] = idPend(CtrlIn, Meas, h)
 
-if 0==1 % Do greyest
+if 1==1 % Do greyest
 I_init = 0.0338;
 
 data = iddata(Meas.signals.values(:, 1), CtrlIn.signals.values, h);
@@ -43,7 +43,7 @@ y_shift = circshift(y,1);
 cross0time = t( (y(2:end).*y_shift(2:end)) <= 0 );
 
 % Estimate dampening
-[yPks,locs] = findpeaks(y);
+[yPks,locs] = findpeaks(abs(y));
 
 % Fit exponential function to peaks
 xPks = CtrlIn.time(locs) - CtrlIn.time(locs(1));
@@ -51,7 +51,7 @@ xPks = CtrlIn.time(locs) - CtrlIn.time(locs(1));
 % [linFit, linGOF] = fit(xPks,yPks,'poly1');
 
 % Estimate period and equivalent length for string and bob pendulum
-T = mean(diff(xPks));
+T = mean(diff(xPks))*2;
 pendparams.l_eq_est = 9.81*(T/2/pi)^2;
 
 % plots
@@ -63,10 +63,13 @@ plot(t, expFit(t-cross0time(1)), 'm');
 plot(xPks+CtrlIn.time(locs(1)), yPks, 'o');
 
 est = @(x) -expFit((x-cross0time(1))).*sin(2*pi/T * (x-cross0time(1)));
+% est = @(x) -linFit((x-cross0time(1))).*sin(2*pi/T * (x-cross0time(1)));
 plot(t, est(t));
 
 legend(["Measurement" "Zeros" "Exponential peak fit" "Peaks" "Estimate"]);
+% legend(["Measurement" "Zeros" "Linear peak fit" "Peaks" "Estimate"]);
 
 pendparams.c = expFit.b;
+% pendparams.c = linFit.p1;
 
 end

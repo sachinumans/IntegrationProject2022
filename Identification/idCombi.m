@@ -20,7 +20,7 @@ ID.Structure.Parameters(7).Maximum = 0.1;
 % Get system
 opt = greyestOptions;
 opt.EnforceStability = 1;
-% opt.InitialState = 'estimate';
+opt.InitialState = 'estimate';
 % opt.InitialState = 'backcast';
 [sys, x0] = greyest(data, ID, opt);
 
@@ -29,7 +29,7 @@ param_ = getpvec(sys);
 param.k = param_(1);
 param.b = param_(2);
 param.Id = 1/param_(3);
-param.I = param_(6)*param_(4)^2;
+param.Inert = param_(6)*param_(4)^2;
 param.c = param_(5);
 param.m = param_(6);
 param.l = param_(7);

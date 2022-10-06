@@ -2,8 +2,7 @@ clear all; close all; clc;
 addpath(genpath('Identification'))
 addpath(genpath('ControllerDesign'))
 
-updateSys = 0;
-Method = "Greybox nonlin"; % Load / Subspace / Greybox
+Method = "Greybox"; % Load / Subspace / Greybox / Greybox nonlin
 
 
 hwinit();
@@ -20,7 +19,6 @@ t = CtrlIn.time;
 s = 75;
 n = 3;
 
-if updateSys
 %%% PI-MOESP
 sysPI1 = pi_moesp(u,y(:,1),s,n,h);
 sysPI2 = pi_moesp(u,y(:,2),s,n,h);
@@ -89,10 +87,8 @@ t = CtrlIn.time;
 set(gcf, "Name", "Validation 3")
 
 % Possibly merge double estimated poles
-else
-    load Identification\IdentifiedSystem
-end
 
+%%
 case "Greybox"
 %%% Identify motor
 % load Identification\Data\grey_MotorID_ramp_cropped.mat
