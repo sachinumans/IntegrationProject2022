@@ -2,7 +2,7 @@ clear all; close all; clc;
 addpath(genpath('Identification'))
 addpath(genpath('ControllerDesign'))
 
-Method = "Load"; % Load / Subspace / Greybox / Greybox nonlin
+Method = "Load"; % Load / Subspace / Greybox  / Greybox nonlin
 
 
 hwinit();
@@ -153,23 +153,40 @@ nx = 3;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 otherwise
     load Identification\IdentifiedSystem
-    load Identification\Data\grey_chirp_LowFr_smallAngle_cropped2.mat
-    data = iddata(Meas.signals.values, CtrlIn.signals.values, h);
-    figure(); compare(data, sys, compareOptions('InitialCondition', 'e'));
+    if 0==1
+        load Identification\Data\grey_chirp_LowFr_smallAngle_cropped2.mat
+        data = iddata(Meas.signals.values, CtrlIn.signals.values, h);
+        figure(); compare(data, sys, compareOptions('InitialCondition', 'e'));
+    end
     nx = size(sys.A, 1);
 end
 
 %% Controller design
 
-disp("The system is controllable")
-rank(ctrb(sys)) == nx
-disp("The system is observable")
-rank(obsv(sys)) == nx
+% Assume full state knowledge
+sys = ss(sys.A, sys.B, eye(nx), zeros(nx,1), h);
+
+% Up or Down
+sysUnst = sys;
+sysUnst.A(2,1) = -sys.A(2,1);
+
+disp("The system is controllable"); rank(ctrb(sys)) == nx
+disp("The system is observable"); rank(obsv(sys)) == nx
 
 nx = size(sys.A, 1); nu = 1; ny = 2;
-K = Synth_LQR(sys, "Greybox up");
 
-disp("Controller poles are at: "); disp(abs(eig(sys.A-sys.B*K)));
+% LQR controller
+K = Synth_LQR(sys, "Greybox");
+disp("LQR controller poles are at: "); disp(abs(eig(sys.A-sys.B*K)));
+
+% MPC controller
+load ControllerDesign\MPC mpcController
+mpcController.ControlHorizon = 10;
+mpcController.PredictionHorizon = 15;
+mpcController.OutputVariables(1).Min = -0.025;
+mpcController.OutputVariables(1).Max = 0.025;
+mpcController.Weights.ManipulatedVariablesRate = 0.001;
 
 
-
+mpcControllerUnst = mpcController;
+mpcControllerUnst.Model.Plant.A(2,1) = -sys.A(2,1);

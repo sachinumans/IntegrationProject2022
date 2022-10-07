@@ -1,4 +1,12 @@
 function [K] = Synth_LQR(sys, meth)
+meanMagTheta = 0.1;
+meanMagThetaDot = pi;
+meanMagPhi = 150;
+meanMagInput = 3;
+
+stateNorm = diag(1./[meanMagTheta meanMagThetaDot meanMagPhi]);
+inputNorm = 1/meanMagInput;
+
 switch meth
     case "Subspace"
 nx = size(sys.A, 1);
@@ -6,19 +14,11 @@ Q = 1*blkdiag(eye(nx/2), zeros(nx/2)); % State cost
 R = 1; % Input cost
 N = zeros(nx,1); % Cross cost
 
-    case "Greybox down"
+    case "Greybox"
 nx = size(sys.A, 1);
-Q = diag([1e2, 0, 0]); % State cost
-R = 1; % Input cost
+Q = stateNorm * diag([10, 0, 1]) * stateNorm; % State cost
+R = inputNorm * 50; % Input cost
 N = zeros(nx,1); % Cross cost
-
-    case "Greybox up"
-nx = size(sys.A, 1);
-Q = diag([1e2, 0, 0]); % State cost
-R = 1; % Input cost
-N = zeros(nx,1); % Cross cost
-
-sys.A(2,1) = -sys.A(2,1);
 
     otherwise; error("Unknown method passed"); 
 end
