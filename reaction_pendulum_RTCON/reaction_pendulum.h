@@ -7,9 +7,9 @@
  *
  * Code generation for model "reaction_pendulum".
  *
- * Model version              : 7.5
+ * Model version              : 7.17
  * Simulink Coder version : 9.6 (R2021b) 14-May-2021
- * C source code generated on : Thu Sep 22 14:04:14 2022
+ * C source code generated on : Tue Oct 11 13:48:19 2022
  *
  * Target selection: rtcon_rpend_usb2.tlc
  * Note: GRT includes extra infrastructure and instrumentation for prototyping
@@ -22,6 +22,7 @@
 #define RTW_HEADER_reaction_pendulum_h_
 #include <stddef.h>
 #include <string.h>
+#include <math.h>
 #include <float.h>
 #ifndef reaction_pendulum_COMMON_INCLUDES_
 #define reaction_pendulum_COMMON_INCLUDES_
@@ -39,6 +40,7 @@
 /* Shared type includes */
 #include "multiword_types.h"
 #include "rt_nonfinite.h"
+#include "rtGetInf.h"
 
 /* Macros for accessing real-time model data structure */
 #ifndef rtmGetContTimeOutputInconsistentWithStateAtMajorStepFlag
@@ -131,7 +133,11 @@
 
 /* Block signals (default storage) */
 typedef struct {
-  real_T Control;                      /* '<Root>/Reset Encoders1' */
+  real_T Delay1[2];                    /* '<S1>/Delay1' */
+  real_T Probe[2];                     /* '<S7>/Probe' */
+  real_T Constant;                     /* '<S10>/Constant' */
+  real_T AB;                           /* '<S6>/[A,B]' */
+  real_T Control;                      /* '<S3>/Multiport Switch' */
   real_T Saturation;                   /* '<S2>/Saturation' */
   real_T Gain[2];                      /* '<S2>/Gain' */
   real_T Prescaler;                    /* '<S2>/Prescaler' */
@@ -147,16 +153,27 @@ typedef struct {
   real_T Periodms;                     /* '<S2>/Gain1' */
   real_T DCVelrads;                    /* '<S2>/Divide' */
   real_T DCConverttoA1;                /* '<S2>/DC Convert to [A]1' */
-  real_T TmpSignalConversionAtToWorkspac[3];
+  real_T Probe_f[2];                   /* '<S13>/Probe' */
+  real_T Constant_a;                   /* '<S16>/Constant' */
+  real_T AB_o;                         /* '<S5>/[A,B]' */
+  real_T TmpSignalConversionAtDelay1Inpo[2];
+  real_T xk1[6];                       /* '<S63>/optimizer' */
+  real_T u;                            /* '<S63>/optimizer' */
+  real_T xk1_a[6];                     /* '<S41>/optimizer' */
+  real_T u_f;                          /* '<S41>/optimizer' */
+  boolean_T iAout[60];                 /* '<S63>/optimizer' */
+  boolean_T iAout_m[60];               /* '<S41>/optimizer' */
 } B_reaction_pendulum_T;
 
 /* Block states (default storage) for system '<Root>' */
 typedef struct {
-  real_T Chirp_CURRENT_STEP;           /* '<Root>/Chirp' */
-  real_T Chirp_ACC_PHASE;              /* '<Root>/Chirp' */
-  real_T Chirp_BETA;                   /* '<Root>/Chirp' */
-  real_T Chirp_MIN_FREQ;               /* '<Root>/Chirp' */
-  real_T Chirp_PERIOD_THETA;           /* '<Root>/Chirp' */
+  real_T Delay1_DSTATE[2];             /* '<S1>/Delay1' */
+  real_T Integrator_DSTATE;            /* '<S12>/Integrator' */
+  real_T last_mv_DSTATE;               /* '<S21>/last_mv' */
+  real_T last_mv_DSTATE_d;             /* '<S43>/last_mv' */
+  real_T Integrator_DSTATE_g;          /* '<S18>/Integrator' */
+  real_T last_x_PreviousInput[6];      /* '<S21>/last_x' */
+  real_T last_x_PreviousInput_b[6];    /* '<S43>/last_x' */
   real_T Memory1_PreviousInput;        /* '<S2>/Memory1' */
   real_T Memory_PreviousInput;         /* '<S2>/Memory' */
   struct {
@@ -165,58 +182,263 @@ typedef struct {
 
   struct {
     void *LoggedData;
-  } ToWorkspace_PWORK;                 /* '<Root>/To Workspace' */
+  } ToWorkspace1_PWORK;                /* '<Root>/To Workspace1' */
+
+  struct {
+    void *LoggedData[3];
+  } Observer_PWORK;                    /* '<S1>/Observer' */
 
   struct {
     void *LoggedData;
-  } ToWorkspace1_PWORK;                /* '<Root>/To Workspace1' */
+  } ToWorkspace_PWORK;                 /* '<Root>/To Workspace' */
 
-  boolean_T Chirp_SWEEP_DIRECTION;     /* '<Root>/Chirp' */
+  int8_T Integrator_PrevResetState;    /* '<S12>/Integrator' */
+  int8_T Integrator_PrevResetState_l;  /* '<S18>/Integrator' */
+  boolean_T Memory_PreviousInput_h[60];/* '<S21>/Memory' */
+  boolean_T Memory_PreviousInput_e[60];/* '<S43>/Memory' */
 } DW_reaction_pendulum_T;
 
 /* Parameters (default storage) */
 struct P_reaction_pendulum_T_ {
+  real_T K[3];                         /* Variable: K
+                                        * Referenced by: '<S3>/LQR STABLE'
+                                        */
+  real_T K_Unst[3];                    /* Variable: K_Unst
+                                        * Referenced by: '<S3>/LQR UNSTABLE'
+                                        */
   real_T SFunction_P2_Size[2];         /* Computed Parameter: SFunction_P2_Size
                                         * Referenced by: '<S2>/S-Function'
                                         */
   real_T h;                            /* Variable: h
-                                        * Referenced by: '<S2>/S-Function'
+                                        * Referenced by:
+                                        *   '<Root>/Step2'
+                                        *   '<S2>/S-Function'
+                                        *   '<S13>/Time constant'
+                                        *   '<S7>/Time constant'
                                         */
-  real_T Chirp_Tsweep;                 /* Mask Parameter: Chirp_Tsweep
-                                        * Referenced by: '<Root>/Chirp'
+  real_T FilteredDerivative1_A;        /* Mask Parameter: FilteredDerivative1_A
+                                        * Referenced by: '<S6>/[A,B]'
                                         */
-  real_T Chirp_f0;                     /* Mask Parameter: Chirp_f0
-                                        * Referenced by: '<Root>/Chirp'
+  real_T FilteredDerivative_A;         /* Mask Parameter: FilteredDerivative_A
+                                        * Referenced by: '<S5>/[A,B]'
                                         */
-  real_T Chirp_f1;                     /* Mask Parameter: Chirp_f1
-                                        * Referenced by: '<Root>/Chirp'
+  real_T FilteredDerivative1_B;        /* Mask Parameter: FilteredDerivative1_B
+                                        * Referenced by: '<S6>/[A,B]'
                                         */
-  real_T Chirp_phase;                  /* Mask Parameter: Chirp_phase
-                                        * Referenced by: '<Root>/Chirp'
+  real_T FilteredDerivative_B;         /* Mask Parameter: FilteredDerivative_B
+                                        * Referenced by: '<S5>/[A,B]'
                                         */
-  real_T Chirp_t1;                     /* Mask Parameter: Chirp_t1
-                                        * Referenced by: '<Root>/Chirp'
+  real_T FilteredDerivative1_K;        /* Mask Parameter: FilteredDerivative1_K
+                                        * Referenced by: '<S6>/Gain'
                                         */
-  real_T DC_Ctrl1_Value;               /* Expression: 0.0
-                                        * Referenced by: '<Root>/DC_Ctrl1'
+  real_T FilteredDerivative_K;         /* Mask Parameter: FilteredDerivative_K
+                                        * Referenced by: '<S5>/Gain'
                                         */
-  real_T Gain1_Gain;                   /* Expression: 0.3
-                                        * Referenced by: '<Root>/Gain1'
+  real_T FilteredDerivative1_minRatio;
+                                 /* Mask Parameter: FilteredDerivative1_minRatio
+                                  * Referenced by: '<S7>/Minimum sampling to time constant ratio'
+                                  */
+  real_T FilteredDerivative_minRatio;
+                                  /* Mask Parameter: FilteredDerivative_minRatio
+                                   * Referenced by: '<S13>/Minimum sampling to time constant ratio'
+                                   */
+  real_T FilteredDerivative1_x0;       /* Mask Parameter: FilteredDerivative1_x0
+                                        * Referenced by: '<S10>/Constant'
                                         */
-  real_T Reset_Value;                  /* Expression: 1
-                                        * Referenced by: '<Root>/Reset'
+  real_T FilteredDerivative_x0;        /* Mask Parameter: FilteredDerivative_x0
+                                        * Referenced by: '<S16>/Constant'
                                         */
-  real_T Normal_Value;                 /* Expression: 0
-                                        * Referenced by: '<Root>/Normal'
+  real_T Defaultstoponerror_Value;     /* Expression: 0
+                                        * Referenced by: '<S3>/Default stop on error'
+                                        */
+  real_T Controllerselection_Value;    /* Expression: 4
+                                        * Referenced by: '<Root>/<Controller selection'
+                                        */
+  real_T Delay1_InitialCondition;      /* Expression: 0
+                                        * Referenced by: '<S1>/Delay1'
+                                        */
+  real_T Constant_Value;               /* Expression: 0
+                                        * Referenced by: '<S6>/Constant'
+                                        */
+  real_T Integrator_gainval;           /* Computed Parameter: Integrator_gainval
+                                        * Referenced by: '<S12>/Integrator'
+                                        */
+  real_T Integrator_UpperSat;          /* Expression: antiwindupUpperLimit
+                                        * Referenced by: '<S12>/Integrator'
+                                        */
+  real_T Integrator_LowerSat;          /* Expression: antiwindupLowerLimit
+                                        * Referenced by: '<S12>/Integrator'
+                                        */
+  real_T Saturation_UpperSat;          /* Expression: windupUpperLimit
+                                        * Referenced by: '<S12>/Saturation'
+                                        */
+  real_T Saturation_LowerSat;          /* Expression: windupLowerLimit
+                                        * Referenced by: '<S12>/Saturation'
+                                        */
+  real_T last_x_InitialCondition[6];   /* Expression: lastx+xoff
+                                        * Referenced by: '<S21>/last_x'
+                                        */
+  real_T last_mv_InitialCondition;     /* Expression: lastu+uoff
+                                        * Referenced by: '<S21>/last_mv'
+                                        */
+  real_T Ref_Value[3];                 /* Expression: [0 0 0]
+                                        * Referenced by: '<S3>/Ref'
+                                        */
+  real_T md_zero_Value;                /* Expression: zeros(1,1)
+                                        * Referenced by: '<S19>/md_zero'
+                                        */
+  real_T umin_zero_Value;              /* Expression: zeros(1,1)
+                                        * Referenced by: '<S19>/umin_zero'
+                                        */
+  real_T umax_zero_Value;              /* Expression: zeros(1,1)
+                                        * Referenced by: '<S19>/umax_zero'
+                                        */
+  real_T ymin_zero_Value[3];           /* Expression: zeros(3,1)
+                                        * Referenced by: '<S19>/ymin_zero'
+                                        */
+  real_T ymax_zero_Value[3];           /* Expression: zeros(3,1)
+                                        * Referenced by: '<S19>/ymax_zero'
+                                        */
+  real_T E_zero_Value;                 /* Expression: zeros(1,1)
+                                        * Referenced by: '<S19>/E_zero'
+                                        */
+  real_T umin_scale4_Gain;         /* Expression: MVscale(:,ones(1,max(nCC,1)))'
+                                    * Referenced by: '<S21>/umin_scale4'
+                                    */
+  real_T F_zero_Value[3];              /* Expression: zeros(1,3)
+                                        * Referenced by: '<S19>/F_zero'
+                                        */
+  real_T ymin_scale1_Gain[3];       /* Expression: Yscale(:,ones(1,max(nCC,1)))'
+                                     * Referenced by: '<S21>/ymin_scale1'
+                                     */
+  real_T G_zero_Value;                 /* Expression: zeros(1,1)
+                                        * Referenced by: '<S19>/G_zero'
+                                        */
+  real_T S_zero_Value;                 /* Expression: zeros(1,1)
+                                        * Referenced by: '<S19>/S_zero'
+                                        */
+  real_T ymin_scale2_Gain;         /* Expression: MDscale(:,ones(1,max(nCC,1)))'
+                                    * Referenced by: '<S21>/ymin_scale2'
+                                    */
+  real_T switch_zero_Value;            /* Expression: zeros(1,1)
+                                        * Referenced by: '<S19>/switch_zero'
+                                        */
+  real_T extmv_zero_Value;             /* Expression: zeros(1,1)
+                                        * Referenced by: '<S19>/ext.mv_zero'
+                                        */
+  real_T extmv_scale_Gain;             /* Expression: RMVscale
+                                        * Referenced by: '<S21>/ext.mv_scale'
+                                        */
+  real_T mvtarget_zero_Value;          /* Expression: zeros(1,1)
+                                        * Referenced by: '<S19>/mv.target_zero'
+                                        */
+  real_T extmv_scale1_Gain;            /* Expression: RMVscale
+                                        * Referenced by: '<S21>/ext.mv_scale1'
+                                        */
+  real_T ywt_zero_Value[3];            /* Expression: zeros(3,1)
+                                        * Referenced by: '<S19>/y.wt_zero'
+                                        */
+  real_T uwt_zero_Value;               /* Expression: zeros(1,1)
+                                        * Referenced by: '<S19>/u.wt_zero'
+                                        */
+  real_T duwt_zero_Value;              /* Expression: zeros(1,1)
+                                        * Referenced by: '<S19>/du.wt_zero'
+                                        */
+  real_T ecrwt_zero_Value;             /* Expression: zeros(1,1)
+                                        * Referenced by: '<S19>/ecr.wt_zero'
+                                        */
+  real_T umin_scale1_Gain;             /* Expression: MVscale
+                                        * Referenced by: '<S21>/umin_scale1'
+                                        */
+  real_T last_x_InitialCondition_e[6]; /* Expression: lastx+xoff
+                                        * Referenced by: '<S43>/last_x'
+                                        */
+  real_T last_mv_InitialCondition_g;   /* Expression: lastu+uoff
+                                        * Referenced by: '<S43>/last_mv'
+                                        */
+  real_T Ref1_Value[3];                /* Expression: [0 0 0]
+                                        * Referenced by: '<S3>/Ref1'
+                                        */
+  real_T md_zero_Value_o;              /* Expression: zeros(1,1)
+                                        * Referenced by: '<S20>/md_zero'
+                                        */
+  real_T umin_zero_Value_m;            /* Expression: zeros(1,1)
+                                        * Referenced by: '<S20>/umin_zero'
+                                        */
+  real_T umax_zero_Value_n;            /* Expression: zeros(1,1)
+                                        * Referenced by: '<S20>/umax_zero'
+                                        */
+  real_T ymin_zero_Value_g[3];         /* Expression: zeros(3,1)
+                                        * Referenced by: '<S20>/ymin_zero'
+                                        */
+  real_T ymax_zero_Value_m[3];         /* Expression: zeros(3,1)
+                                        * Referenced by: '<S20>/ymax_zero'
+                                        */
+  real_T E_zero_Value_f;               /* Expression: zeros(1,1)
+                                        * Referenced by: '<S20>/E_zero'
+                                        */
+  real_T umin_scale4_Gain_e;       /* Expression: MVscale(:,ones(1,max(nCC,1)))'
+                                    * Referenced by: '<S43>/umin_scale4'
+                                    */
+  real_T F_zero_Value_f[3];            /* Expression: zeros(1,3)
+                                        * Referenced by: '<S20>/F_zero'
+                                        */
+  real_T ymin_scale1_Gain_g[3];     /* Expression: Yscale(:,ones(1,max(nCC,1)))'
+                                     * Referenced by: '<S43>/ymin_scale1'
+                                     */
+  real_T G_zero_Value_a;               /* Expression: zeros(1,1)
+                                        * Referenced by: '<S20>/G_zero'
+                                        */
+  real_T S_zero_Value_d;               /* Expression: zeros(1,1)
+                                        * Referenced by: '<S20>/S_zero'
+                                        */
+  real_T ymin_scale2_Gain_i;       /* Expression: MDscale(:,ones(1,max(nCC,1)))'
+                                    * Referenced by: '<S43>/ymin_scale2'
+                                    */
+  real_T switch_zero_Value_f;          /* Expression: zeros(1,1)
+                                        * Referenced by: '<S20>/switch_zero'
+                                        */
+  real_T extmv_zero_Value_k;           /* Expression: zeros(1,1)
+                                        * Referenced by: '<S20>/ext.mv_zero'
+                                        */
+  real_T extmv_scale_Gain_j;           /* Expression: RMVscale
+                                        * Referenced by: '<S43>/ext.mv_scale'
+                                        */
+  real_T mvtarget_zero_Value_d;        /* Expression: zeros(1,1)
+                                        * Referenced by: '<S20>/mv.target_zero'
+                                        */
+  real_T extmv_scale1_Gain_l;          /* Expression: RMVscale
+                                        * Referenced by: '<S43>/ext.mv_scale1'
+                                        */
+  real_T ywt_zero_Value_k[3];          /* Expression: zeros(3,1)
+                                        * Referenced by: '<S20>/y.wt_zero'
+                                        */
+  real_T uwt_zero_Value_d;             /* Expression: zeros(1,1)
+                                        * Referenced by: '<S20>/u.wt_zero'
+                                        */
+  real_T duwt_zero_Value_j;            /* Expression: zeros(1,1)
+                                        * Referenced by: '<S20>/du.wt_zero'
+                                        */
+  real_T ecrwt_zero_Value_e;           /* Expression: zeros(1,1)
+                                        * Referenced by: '<S20>/ecr.wt_zero'
+                                        */
+  real_T umin_scale1_Gain_g;           /* Expression: MVscale
+                                        * Referenced by: '<S43>/umin_scale1'
                                         */
   real_T Gain2_Gain;                   /* Expression: 1
                                         * Referenced by: '<S2>/Gain2'
                                         */
-  real_T Saturation_UpperSat;          /* Expression: 1
+  real_T Saturation_UpperSat_h;        /* Expression: 1
                                         * Referenced by: '<S2>/Saturation'
                                         */
-  real_T Saturation_LowerSat;          /* Expression: -1
+  real_T Saturation_LowerSat_f;        /* Expression: -1
                                         * Referenced by: '<S2>/Saturation'
+                                        */
+  real_T Step2_Y0;                     /* Expression: 1
+                                        * Referenced by: '<Root>/Step2'
+                                        */
+  real_T Step2_YFinal;                 /* Expression: 0
+                                        * Referenced by: '<Root>/Step2'
                                         */
   real_T Gain_Gain[2];                 /* Expression: [1;1]
                                         * Referenced by: '<S2>/Gain'
@@ -248,20 +470,36 @@ struct P_reaction_pendulum_T_ {
   real_T Memory_InitialCondition;      /* Expression: 0
                                         * Referenced by: '<S2>/Memory'
                                         */
-  real_T Gain1_Gain_h;                 /* Expression: 1/20000000
+  real_T Gain1_Gain;                   /* Expression: 1/20000000
                                         * Referenced by: '<S2>/Gain1'
                                         */
   real_T DCConverttoA1_Gain;           /* Expression: 0.8333
                                         * Referenced by: '<S2>/DC Convert to [A]1'
                                         */
-  uint8_T ResetEncoders1_CurrentSetting;
-                            /* Computed Parameter: ResetEncoders1_CurrentSetting
-                             * Referenced by: '<Root>/Reset Encoders1'
-                             */
-  uint8_T ResetEncoders_CurrentSetting;
-                             /* Computed Parameter: ResetEncoders_CurrentSetting
-                              * Referenced by: '<Root>/Reset Encoders'
-                              */
+  real_T Constant_Value_p;             /* Expression: 0
+                                        * Referenced by: '<S5>/Constant'
+                                        */
+  real_T Integrator_gainval_n;       /* Computed Parameter: Integrator_gainval_n
+                                      * Referenced by: '<S18>/Integrator'
+                                      */
+  real_T Integrator_UpperSat_o;        /* Expression: antiwindupUpperLimit
+                                        * Referenced by: '<S18>/Integrator'
+                                        */
+  real_T Integrator_LowerSat_h;        /* Expression: antiwindupLowerLimit
+                                        * Referenced by: '<S18>/Integrator'
+                                        */
+  real_T Saturation_UpperSat_b;        /* Expression: windupUpperLimit
+                                        * Referenced by: '<S18>/Saturation'
+                                        */
+  real_T Saturation_LowerSat_k;        /* Expression: windupLowerLimit
+                                        * Referenced by: '<S18>/Saturation'
+                                        */
+  boolean_T Memory_InitialCondition_p[60];/* Expression: iA
+                                           * Referenced by: '<S21>/Memory'
+                                           */
+  boolean_T Memory_InitialCondition_a[60];/* Expression: iA
+                                           * Referenced by: '<S43>/Memory'
+                                           */
 };
 
 /* Real-time Model Data Structure */
@@ -415,7 +653,69 @@ extern RT_MODEL_reaction_pendulum_T *const reaction_pendulum_M;
  * Here is the system hierarchy for this model
  *
  * '<Root>' : 'reaction_pendulum'
- * '<S1>'   : 'reaction_pendulum/Chirp Signal'
+ * '<S1>'   : 'reaction_pendulum/Observer'
  * '<S2>'   : 'reaction_pendulum/RP Driver'
+ * '<S3>'   : 'reaction_pendulum/State feedback controllers'
+ * '<S4>'   : 'reaction_pendulum/Observer/Deriver'
+ * '<S5>'   : 'reaction_pendulum/Observer/Filtered Derivative'
+ * '<S6>'   : 'reaction_pendulum/Observer/Deriver/Filtered Derivative1'
+ * '<S7>'   : 'reaction_pendulum/Observer/Deriver/Filtered Derivative1/Enable//disable time constant'
+ * '<S8>'   : 'reaction_pendulum/Observer/Deriver/Filtered Derivative1/Initialization'
+ * '<S9>'   : 'reaction_pendulum/Observer/Deriver/Filtered Derivative1/Integrator (Discrete or Continuous)'
+ * '<S10>'  : 'reaction_pendulum/Observer/Deriver/Filtered Derivative1/Initialization/Init_param'
+ * '<S11>'  : 'reaction_pendulum/Observer/Deriver/Filtered Derivative1/Initialization/Init_param/Data Type Conversion Inherited'
+ * '<S12>'  : 'reaction_pendulum/Observer/Deriver/Filtered Derivative1/Integrator (Discrete or Continuous)/Discrete'
+ * '<S13>'  : 'reaction_pendulum/Observer/Filtered Derivative/Enable//disable time constant'
+ * '<S14>'  : 'reaction_pendulum/Observer/Filtered Derivative/Initialization'
+ * '<S15>'  : 'reaction_pendulum/Observer/Filtered Derivative/Integrator (Discrete or Continuous)'
+ * '<S16>'  : 'reaction_pendulum/Observer/Filtered Derivative/Initialization/Init_param'
+ * '<S17>'  : 'reaction_pendulum/Observer/Filtered Derivative/Initialization/Init_param/Data Type Conversion Inherited'
+ * '<S18>'  : 'reaction_pendulum/Observer/Filtered Derivative/Integrator (Discrete or Continuous)/Discrete'
+ * '<S19>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE'
+ * '<S20>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE'
+ * '<S21>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC'
+ * '<S22>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/MPC Matrix Signal Check'
+ * '<S23>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/MPC Matrix Signal Check1'
+ * '<S24>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/MPC Matrix Signal Check2'
+ * '<S25>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/MPC Preview Signal Check'
+ * '<S26>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/MPC Preview Signal Check1'
+ * '<S27>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/MPC Preview Signal Check2'
+ * '<S28>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/MPC Preview Signal Check3'
+ * '<S29>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/MPC Preview Signal Check4'
+ * '<S30>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/MPC Preview Signal Check5'
+ * '<S31>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/MPC Preview Signal Check6'
+ * '<S32>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/MPC Preview Signal Check7'
+ * '<S33>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/MPC Preview Signal Check8'
+ * '<S34>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/MPC Scalar Signal Check'
+ * '<S35>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/MPC Scalar Signal Check1'
+ * '<S36>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/MPC Scalar Signal Check2'
+ * '<S37>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/MPC Vector Signal Check'
+ * '<S38>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/MPC Vector Signal Check1'
+ * '<S39>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/MPC Vector Signal Check6'
+ * '<S40>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/moorx'
+ * '<S41>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/optimizer'
+ * '<S42>'  : 'reaction_pendulum/State feedback controllers/MPC Controller STABLE/MPC/optimizer/optimizer'
+ * '<S43>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC'
+ * '<S44>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/MPC Matrix Signal Check'
+ * '<S45>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/MPC Matrix Signal Check1'
+ * '<S46>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/MPC Matrix Signal Check2'
+ * '<S47>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/MPC Preview Signal Check'
+ * '<S48>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/MPC Preview Signal Check1'
+ * '<S49>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/MPC Preview Signal Check2'
+ * '<S50>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/MPC Preview Signal Check3'
+ * '<S51>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/MPC Preview Signal Check4'
+ * '<S52>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/MPC Preview Signal Check5'
+ * '<S53>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/MPC Preview Signal Check6'
+ * '<S54>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/MPC Preview Signal Check7'
+ * '<S55>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/MPC Preview Signal Check8'
+ * '<S56>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/MPC Scalar Signal Check'
+ * '<S57>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/MPC Scalar Signal Check1'
+ * '<S58>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/MPC Scalar Signal Check2'
+ * '<S59>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/MPC Vector Signal Check'
+ * '<S60>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/MPC Vector Signal Check1'
+ * '<S61>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/MPC Vector Signal Check6'
+ * '<S62>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/moorx'
+ * '<S63>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/optimizer'
+ * '<S64>'  : 'reaction_pendulum/State feedback controllers/MPC Controller UNSTABLE/MPC/optimizer/optimizer'
  */
 #endif                                 /* RTW_HEADER_reaction_pendulum_h_ */
