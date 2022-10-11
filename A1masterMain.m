@@ -2,7 +2,7 @@ clear all; close all; clc;
 addpath(genpath('Identification'))
 addpath(genpath('ControllerDesign'))
 
-Method = "Load"; % Load / Subspace / Greybox  / Greybox nonlin
+Method = "Load"; % Load / Subspace / Greybox / Greybox nonlin
 
 
 hwinit();
@@ -148,7 +148,10 @@ figure(); compare(data, sysC, compareOptions('InitialCondition', 'e'));
 
 sys = c2d(sysC, h);
 
-save Identification\IdentifiedSystem sys 
+params = cell2struct([struct2cell(motorparams);struct2cell(pendparams)],[fieldnames(motorparams);fieldnames(pendparams)],1);
+
+
+save Identification\IdentifiedSystem sys params
 nx = 3;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 otherwise
