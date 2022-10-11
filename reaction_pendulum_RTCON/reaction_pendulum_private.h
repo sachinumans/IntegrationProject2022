@@ -7,9 +7,9 @@
  *
  * Code generation for model "reaction_pendulum".
  *
- * Model version              : 7.5
+ * Model version              : 7.17
  * Simulink Coder version : 9.6 (R2021b) 14-May-2021
- * C source code generated on : Thu Sep 22 14:04:14 2022
+ * C source code generated on : Tue Oct 11 13:48:19 2022
  *
  * Target selection: rtcon_rpend_usb2.tlc
  * Note: GRT includes extra infrastructure and instrumentation for prototyping
@@ -41,8 +41,8 @@
 #define rtmSetTPtr(rtm, val)           ((rtm)->Timing.t = (val))
 #endif
 
-#include "dsp_rt.h"  /* DSP System Toolbox general run time support functions */
-
+extern real_T rt_hypotd_snf(real_T u0, real_T u1);
+extern real_T rt_roundd_snf(real_T u);
 extern void rtdacusb2_rpend_dd(SimStruct *rts);
 
 #endif                             /* RTW_HEADER_reaction_pendulum_private_h_ */

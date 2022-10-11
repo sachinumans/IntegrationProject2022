@@ -7,9 +7,9 @@
  *
  * Code generation for model "reaction_pendulum".
  *
- * Model version              : 7.5
+ * Model version              : 7.17
  * Simulink Coder version : 9.6 (R2021b) 14-May-2021
- * C source code generated on : Thu Sep 22 14:04:14 2022
+ * C source code generated on : Tue Oct 11 13:48:19 2022
  *
  * Target selection: rtcon_rpend_usb2.tlc
  * Note: GRT includes extra infrastructure and instrumentation for prototyping
@@ -37,6 +37,9 @@ static uint_T rtDataTypeSizes[] = {
   sizeof(action_T),
   2*sizeof(uint32_T),
   sizeof(int32_T),
+  sizeof(struct_WTmPWsEMvOzNnnAVv5fQNC),
+  sizeof(struct_WHjMt45Sk148iktWsfFxl),
+  sizeof(struct_lnQ9KXdSZFplhcBp5LBCc),
   sizeof(char_T),
   sizeof(uchar_T),
   sizeof(time_T)
@@ -59,6 +62,9 @@ static const char_T * rtDataTypeNames[] = {
   "action_T",
   "timer_uint32_pair_T",
   "physical_connection",
+  "struct_WTmPWsEMvOzNnnAVv5fQNC",
+  "struct_WHjMt45Sk148iktWsfFxl",
+  "struct_lnQ9KXdSZFplhcBp5LBCc",
   "char_T",
   "uchar_T",
   "time_T"
@@ -66,27 +72,31 @@ static const char_T * rtDataTypeNames[] = {
 
 /* data type transitions for block I/O structure */
 static DataTypeTransition rtBTransitions[] = {
-  { (char_T *)(&reaction_pendulum_B.Control), 0, 0, 21 }
+  { (char_T *)(&reaction_pendulum_B.Delay1[0]), 0, 0, 44 },
+
+  { (char_T *)(&reaction_pendulum_B.iAout[0]), 8, 0, 120 }
   ,
 
-  { (char_T *)(&reaction_pendulum_DW.Chirp_CURRENT_STEP), 0, 0, 7 },
+  { (char_T *)(&reaction_pendulum_DW.Delay1_DSTATE[0]), 0, 0, 20 },
 
-  { (char_T *)(&reaction_pendulum_DW.PlotState_PWORK.LoggedData[0]), 11, 0, 6 },
+  { (char_T *)(&reaction_pendulum_DW.PlotState_PWORK.LoggedData[0]), 11, 0, 9 },
 
-  { (char_T *)(&reaction_pendulum_DW.Chirp_SWEEP_DIRECTION), 8, 0, 1 }
+  { (char_T *)(&reaction_pendulum_DW.Integrator_PrevResetState), 2, 0, 2 },
+
+  { (char_T *)(&reaction_pendulum_DW.Memory_PreviousInput_h[0]), 8, 0, 120 }
 };
 
 /* data type transition table for block I/O structure */
 static DataTypeTransitionTable rtBTransTable = {
-  4U,
+  6U,
   rtBTransitions
 };
 
 /* data type transitions for Parameters structure */
 static DataTypeTransition rtPTransitions[] = {
-  { (char_T *)(&reaction_pendulum_P.SFunction_P2_Size[0]), 0, 0, 29 },
+  { (char_T *)(&reaction_pendulum_P.K[0]), 0, 0, 137 },
 
-  { (char_T *)(&reaction_pendulum_P.ResetEncoders1_CurrentSetting), 3, 0, 2 }
+  { (char_T *)(&reaction_pendulum_P.Memory_InitialCondition_p[0]), 8, 0, 120 }
 };
 
 /* data type transition table for Parameters structure */

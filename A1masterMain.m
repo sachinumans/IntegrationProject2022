@@ -178,17 +178,22 @@ disp("The system is observable"); rank(obsv(sys)) == nx
 
 nx = size(sys.A, 1); nu = 1; ny = 2;
 
-% LQR controller
+% LQR controllers
 K = Synth_LQR(sys, "Greybox");
-disp("LQR controller poles are at: "); disp(abs(eig(sys.A-sys.B*K)));
+K_Unst = Synth_LQR(sysUnst, "Greybox");
+disp("LQR down controller poles are at: "); disp(abs(eig(sys.A-sys.B*K)));
+disp("LQR up controller poles are at: "); disp(abs(eig(sys.A-sys.B*K_Unst)));
 
 % MPC controller
 load ControllerDesign\MPC mpcController
+% setEstimator(mpcController, 'custom');
 mpcController.ControlHorizon = 10;
 mpcController.PredictionHorizon = 15;
 mpcController.OutputVariables(1).Min = -0.025;
 mpcController.OutputVariables(1).Max = 0.025;
-mpcController.Weights.ManipulatedVariablesRate = 0.001;
+mpcController.OutputVariables(3).Min = -300;
+mpcController.OutputVariables(3).Max = 300;
+mpcController.Weights.ManipulatedVariablesRate = 0.01;
 
 
 mpcControllerUnst = mpcController;
