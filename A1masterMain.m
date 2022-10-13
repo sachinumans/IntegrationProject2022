@@ -2,7 +2,7 @@ clear all; close all; clc;
 addpath(genpath('Identification'))
 addpath(genpath('ControllerDesign'))
 
-Method = "Load"; % Load / Subspace / Greybox / Greybox nonlin
+Method = "Greybox nonlin"; % Load / Subspace / Greybox / Greybox nonlin
 
 
 hwinit();
