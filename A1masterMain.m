@@ -166,6 +166,9 @@ end
 % Assume full state knowledge
 sys = ss(sys.A, sys.B, eye(nx), zeros(nx,1), h);
 
+% Packet drop system
+sysPack = ss(sys.A, sys.B, sys.C(1:2, :), sys.D(1:2), h);
+
 % Up or Down
 sysUnst = sys;
 sysUnst.A(2,1) = -sys.A(2,1);
@@ -182,16 +185,28 @@ disp("LQR down controller poles are at: "); disp(abs(eig(sys.A-sys.B*K)));
 disp("LQR up controller poles are at: "); disp(abs(eig(sys.A-sys.B*K_Unst)));
 
 % MPC controller
+sysC = d2c(sys);
+sysC_Unst = d2c(sysUnst);
+
+sysDist = ss(eye(3), eye(3), zeros(3), zeros(3), h);
+
 load ControllerDesign\MPC mpcController
-% setEstimator(mpcController, 'custom');
 mpcController.ControlHorizon = 10;
 mpcController.PredictionHorizon = 15;
+
+% mpcController.ManipulatedVariables.Min = -6;
+% mpcController.ManipulatedVariables.Max = 6;
 mpcController.OutputVariables(1).Min = -0.025;
 mpcController.OutputVariables(1).Max = 0.025;
 mpcController.OutputVariables(3).Min = -300;
 mpcController.OutputVariables(3).Max = 300;
-mpcController.Weights.ManipulatedVariablesRate = 0.01;
 
+mpcController.Weights.ManipulatedVariablesRate = 0.001;
+mpcController.Weights.OutputVariables = [100 20 0.1];
+
+setEstimator(mpcController, 'custom');
 
 mpcControllerUnst = mpcController;
 mpcControllerUnst.Model.Plant.A(2,1) = -sys.A(2,1);
+mpcControllerUnst.Weights.OutputVariables = [100 0 0];
+

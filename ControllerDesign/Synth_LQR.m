@@ -18,7 +18,7 @@ N = zeros(nx,1); % Cross cost
 nx = size(sys.A, 1);
 % Q = stateNorm * diag([10, 0, 1]) * stateNorm; % State cost %% quite nice
 % down, not very good up: no overshoot
-Q = stateNorm * diag([100, 0, 1]) * stateNorm; % State cost
+Q = stateNorm * diag([100, 0, 100]) * stateNorm; % State cost
 R = inputNorm * 50; % Input cost
 N = zeros(nx,1); % Cross cost
 
