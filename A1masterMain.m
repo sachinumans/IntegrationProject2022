@@ -182,8 +182,9 @@ disp("The system is observable"); rank(obsv(sys)) == nx
 nx = size(sys.A, 1); nu = 1; ny = 2;
 
 % LQR controllers
-K = Synth_LQR(sys, "Greybox");
-K_Unst = Synth_LQR(sysUnst, "Greybox");
+[K, Ki] = Synth_LQR(sys, "Greybox", [100, 10, 0], 1, 50);
+[K_Unst, Ki_Unst] = Synth_LQR(sysUnst, "Greybox", [100, 0.1, 500], 100, 1e4)
+% [K_Unst, Ki_Unst] = Synth_LQR(sysUnst, "Greybox", [0.1, 0.1, 1], 6, 0.1)
 disp("LQR down controller poles are at: "); disp(abs(eig(sys.A-sys.B*K)));
 disp("LQR up controller poles are at: "); disp(abs(eig(sys.A-sys.B*K_Unst)));
 
