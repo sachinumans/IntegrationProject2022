@@ -167,6 +167,7 @@ end
 %% Controller design
 
 % Assume full state knowledge
+sysReal = sys;
 sys = ss(sys.A, sys.B, eye(nx), zeros(nx,1), h);
 
 sysUnst = sys;
@@ -204,7 +205,8 @@ mpcController.OutputVariables(3).Min = -300;
 mpcController.OutputVariables(3).Max = 300;
 
 mpcController.Weights.ManipulatedVariablesRate = 0.001;
-mpcController.Weights.OutputVariables = [100 20 0.1];
+mpcController.Weights.OutputVariables = [10 5 0.1];
+mpcController.Weights.ManipulatedVariables = 2;
 
 setEstimator(mpcController, 'custom');
 
@@ -213,29 +215,52 @@ mpcControllerUnst.Model.Plant.A(2,1) = -sys.A(2,1);
 mpcControllerUnst.Weights.OutputVariables = [100 0 0];
 
 load ControllerDesign\MPCI.mat
-mpcI.ControlHorizon = 10;
-mpcI.PredictionHorizon = 15;
+mpcI.ControlHorizon = 8;
+mpcI.PredictionHorizon = 10;
 
-% mpcI.ManipulatedVariables.Min = -6;
-% mpcI.ManipulatedVariables.Max = 6;
+mpcI.ManipulatedVariables.Min = -4;
+mpcI.ManipulatedVariables.Max = 4;
 mpcI.OutputVariables(1).Min = -0.025;
 mpcI.OutputVariables(1).Max = 0.025;
 mpcI.OutputVariables(3).Min = -300;
 mpcI.OutputVariables(3).Max = 300;
 
 mpcI.Weights.ManipulatedVariablesRate = 0.001;
-mpcI.Weights.OutputVariables = [100 20 0.1 100];
+mpcI.Weights.OutputVariables = [10 5 0.1 1];
+mpcI.Weights.ManipulatedVariables = 50;
 
 setEstimator(mpcI, 'custom');
 
 mpcIUnst = mpcI;
 mpcIUnst.Model.Plant.A(2,1) = -sysI.A(2,1);
-mpcIUnst.Weights.OutputVariables = [100 0 0 100];
+mpcIUnst.Model.Plant.A(4,1) = mpcIUnst.Model.Plant.A(4,1)*35;
+mpcIUnst.Weights.OutputVariables = [10 0.5 1 100];
+
+load ControllerDesign\MPCkal.mat
+mpcKalman.ControlHorizon = 5;
+mpcKalman.PredictionHorizon = 10;
+
+% mpcI.ManipulatedVariables.Min = -6;
+% mpcI.ManipulatedVariables.Max = 6;
+mpcKalman.OutputVariables(1).Min = -0.025;
+mpcKalman.OutputVariables(1).Max = 0.025;
+mpcKalman.OutputVariables(2).Min = -300;
+mpcKalman.OutputVariables(2).Max = 300;
+
+mpcKalman.Weights.ManipulatedVariablesRate = 0.01;
+mpcKalman.Weights.OutputVariables = [100 20];
+
+mpcKalmanUnst = mpcKalman;
+mpcKalmanUnst.Model.Plant.A(2,1) = -sys.A(2,1);
+% mpcKalmanUnst.Model.Plant.A(4,1) = mpcKalmanUnst.Model.Plant.A(4,1)*35;
+mpcKalmanUnst.Weights.OutputVariables = [5 1];
 
 % Hinf controller
-Hinf = hinfsyn(sys, 3, 1);
-HinfUnst = hinfsyn(sysUnst, 3, 1);
+[Hinf, ~, ~] = hinfsyn(sys, 3, 1);
+[HinfUnst, ~, ~] = hinfsyn(sysUnst, 3, 1);
 
-HinfI = hinfsyn(sysI, 4, 1);
-HinfUnstI = hinfsyn(sysUnstI, 4, 1);
+[HinfI, ~, ~] = hinfsyn(sysI, 4, 1);
+[HinfUnstI, ~, ~] = hinfsyn(sysUnstI, 4, 1);
 
+%%
+% MPC_plot_proj(MPC_prediction, MeasFull, 15, h)
