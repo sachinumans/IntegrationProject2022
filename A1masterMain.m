@@ -169,12 +169,15 @@ end
 % Assume full state knowledge
 sys = ss(sys.A, sys.B, eye(nx), zeros(nx,1), h);
 
-% Packet drop system
-sysPack = ss(sys.A, sys.B, sys.C(1:2, :), sys.D(1:2), h);
-
-% Up or Down
 sysUnst = sys;
 sysUnst.A(2,1) = -sys.A(2,1);
+
+sysI = ss([sys.A, zeros(nx,1); [1 0 0 1]], [sys.B; 0], eye(nx+1), zeros(nx+1, 1), sys.Ts);
+sysUnstI = sysI;
+sysUnstI.A(2,1) = -sysI.A(2,1);
+
+sysC = d2c(sys);
+sysC_Unst = d2c(sysUnst);
 
 disp("The system is controllable"); rank(ctrb(sys)) == nx
 disp("The system is observable"); rank(obsv(sys)) == nx
@@ -189,11 +192,6 @@ disp("LQR down controller poles are at: "); disp(abs(eig(sys.A-sys.B*K)));
 disp("LQR up controller poles are at: "); disp(abs(eig(sys.A-sys.B*K_Unst)));
 
 % MPC controller
-sysC = d2c(sys);
-sysC_Unst = d2c(sysUnst);
-
-sysDist = ss(eye(3), eye(3), zeros(3), zeros(3), h);
-
 load ControllerDesign\MPC mpcController
 mpcController.ControlHorizon = 10;
 mpcController.PredictionHorizon = 15;
@@ -213,4 +211,31 @@ setEstimator(mpcController, 'custom');
 mpcControllerUnst = mpcController;
 mpcControllerUnst.Model.Plant.A(2,1) = -sys.A(2,1);
 mpcControllerUnst.Weights.OutputVariables = [100 0 0];
+
+load ControllerDesign\MPCI.mat
+mpcI.ControlHorizon = 10;
+mpcI.PredictionHorizon = 15;
+
+% mpcI.ManipulatedVariables.Min = -6;
+% mpcI.ManipulatedVariables.Max = 6;
+mpcI.OutputVariables(1).Min = -0.025;
+mpcI.OutputVariables(1).Max = 0.025;
+mpcI.OutputVariables(3).Min = -300;
+mpcI.OutputVariables(3).Max = 300;
+
+mpcI.Weights.ManipulatedVariablesRate = 0.001;
+mpcI.Weights.OutputVariables = [100 20 0.1 100];
+
+setEstimator(mpcI, 'custom');
+
+mpcIUnst = mpcI;
+mpcIUnst.Model.Plant.A(2,1) = -sysI.A(2,1);
+mpcIUnst.Weights.OutputVariables = [100 0 0 100];
+
+% Hinf controller
+Hinf = hinfsyn(sys, 3, 1);
+HinfUnst = hinfsyn(sysUnst, 3, 1);
+
+HinfI = hinfsyn(sysI, 4, 1);
+HinfUnstI = hinfsyn(sysUnstI, 4, 1);
 
