@@ -1,12 +1,12 @@
 function [K, Ki] = Synth_LQR(sys, meth, wy, wyI, wu)
-meanMagTheta = 0.1;
-meanMagThetaDot = pi;
-meanMagPhi = 150;
-meanMagInput = 3;
+meanMagTheta = 0.05;
+meanMagThetaDot = 0.5;
+meanMagPhi = 50;
+meanMagInput = 1;
 
-stateNorm = diag(1./[meanMagTheta meanMagThetaDot meanMagPhi]);
+stateNorm = diag(1./sqrt([meanMagTheta meanMagThetaDot meanMagPhi]));
 stateNormI = blkdiag(stateNorm, stateNorm(1,1));
-inputNorm = 1/meanMagInput;
+inputNorm = 1/sqrt(meanMagInput);
 
 switch meth
     case "Subspace"
