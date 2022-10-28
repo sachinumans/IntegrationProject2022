@@ -146,6 +146,9 @@ sysC = getSys_from_Param(motorparams, pendparams);
 load Identification\Data\grey_chirp_LowFr_smallAngle_cropped2.mat
 data = iddata(Meas.signals.values, CtrlIn.signals.values, h);
 figure(); compare(data, sysC, compareOptions('InitialCondition', 'e'));
+load Identification\Data\valPRB.mat
+data = iddata(MeasFull(:, 1:3), CtrlIn.signals.values, h);
+figure(); compare(data, sysC, compareOptions('InitialCondition', 'e'));
 
 sys = c2d(sysC, h);
 
