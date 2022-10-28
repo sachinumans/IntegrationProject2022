@@ -1,8 +1,9 @@
 clear all; close all; clc;
 addpath(genpath('Identification'))
 addpath(genpath('ControllerDesign'))
+addpath(genpath('Validation'))
 
-Method = "Load"; % Load / Subspace / Greybox / Greybox nonlin
+Method = "Subspace"; % Load / Subspace / Greybox / Greybox nonlin
 
 
 hwinit();
@@ -54,7 +55,7 @@ else
     disp("Chosen method is PO-MOESP");
 end
 
-save Identification\IdentifiedSystem sys
+% save Identification\IdentifiedSystem sys
 nx = size(sys.A, 1);
 
 
@@ -265,5 +266,38 @@ mpcIUnst.Model.Plant.A(2,1) = -sysI.A(2,1);
 % [HinfI, ~, ~] = hinfsyn(sysI, 4, 1);
 % [HinfUnstI, ~, ~] = hinfsyn(sysUnstI, 4, 1);
 
-%%
+%% Validate controllers
+folds = ["LQR" "LQI" "MPC" "MPCI"];
+names = ["run1" "run2" "run3" "run4"];
+maxima = struct();
+
+for F = folds
+    figure("Name",F);
+    for N = names
+        d = strjoin(["load Validation\" F "\" N], '');
+        eval(d)
+        if any(F == ["LQI" "MPCI"]); s = 4; else s = 3; end
+        T = CtrlIn.time;
+        for idx = 1:s
+            subplot(s+1, 1, idx); hold on
+            plot(T, MeasFull(:, idx)); hold off
+        end
+        subplot(s+1, 1, s+1); hold on
+        plot(T, CtrlIn.signals.values); hold off
+    end
+    if F == "MPC"; figure("Name",strjoin([F "State Predictions"]))
+        for N = names
+            d = strjoin(["load Validation\" F "\" N], '');
+            eval(d)
+            MPC_plot_proj(MPC_prediction, MeasFull(:, 1:3), h)
+    end; end
+    if F == "MPCI"; figure("Name",strjoin([F "State Predictions"]))
+        for N = names
+            d = strjoin(["load Validation\" F "\" N], '');
+            eval(d)
+            MPC_plot_proj(MPCI_prediction, MeasFull, h)
+    end; end
+end
+
+
 % MPC_plot_proj(MPCI_prediction, MeasFull, h)
