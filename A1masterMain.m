@@ -3,7 +3,7 @@ addpath(genpath('Identification'))
 addpath(genpath('ControllerDesign'))
 addpath(genpath('Validation'))
 
-Method = "Subspace"; % Load / Subspace / Greybox / Greybox nonlin
+Method = "Load"; % Load / Subspace / Greybox / Greybox nonlin
 
 
 hwinit();
@@ -189,9 +189,9 @@ nx = size(sys.A, 1); nu = 1; ny = 2;
 % LQR controllers
 [K, Ki] = Synth_LQR(sys, "Greybox", [100, 10, 0], 1, 50);
 
-% [K_Unst, Ki_Unst] = Synth_LQR(sysUnst, "Greybox", [10, 0.1, 0.1], 0.5, 0.1);
-[K_Unst, ~] = Synth_LQR(sysUnst, "Greybox", [100, 0, 0], 25, 25);
-[~, Ki_Unst] = Synth_LQR(sysUnst, "Greybox", [50, 0, 5], 25, 5e3);
+[K_Unst, ~] = Synth_LQR(sysUnst, "Greybox", [50, 0, 0], 5, 1);
+[~, Ki_Unst] = Synth_LQR(sysUnst, "Greybox", [75, 25, 5], 5, 4e2);
+% Kii_Unst = Synth_LQII(sysUnst, [75, 5, 5], [25 5], 400);
 
 % disp("LQR down controller poles are at: "); disp(abs(eig(sys.A-sys.B*K)));
 % disp("LQR up controller poles are at: "); disp(abs(eig(sys.A-sys.B*K_Unst)));
@@ -266,6 +266,7 @@ mpcIUnst.Model.Plant.A(2,1) = -sysI.A(2,1);
 % [HinfI, ~, ~] = hinfsyn(sysI, 4, 1);
 % [HinfUnstI, ~, ~] = hinfsyn(sysUnstI, 4, 1);
 
+return
 %% Validate controllers
 folds = ["LQR" "LQI" "MPC" "MPCI"];
 names = ["run1" "run2" "run3" "run4"];
@@ -285,18 +286,18 @@ for F = folds
         subplot(s+1, 1, s+1); hold on
         plot(T, CtrlIn.signals.values); hold off
     end
-    if F == "MPC"; figure("Name",strjoin([F "State Predictions"]))
-        for N = names
-            d = strjoin(["load Validation\" F "\" N], '');
-            eval(d)
-            MPC_plot_proj(MPC_prediction, MeasFull(:, 1:3), h)
-    end; end
-    if F == "MPCI"; figure("Name",strjoin([F "State Predictions"]))
-        for N = names
-            d = strjoin(["load Validation\" F "\" N], '');
-            eval(d)
-            MPC_plot_proj(MPCI_prediction, MeasFull, h)
-    end; end
+%     if F == "MPC"; figure("Name",strjoin([F "State Predictions"]))
+%         for N = names
+%             d = strjoin(["load Validation\" F "\" N], '');
+%             eval(d)
+%             MPC_plot_proj(MPC_prediction, MeasFull(:, 1:3), h)
+%     end; end
+%     if F == "MPCI"; figure("Name",strjoin([F "State Predictions"]))
+%         for N = names
+%             d = strjoin(["load Validation\" F "\" N], '');
+%             eval(d)
+%             MPC_plot_proj(MPCI_prediction, MeasFull, h)
+%     end; end
 end
 
 

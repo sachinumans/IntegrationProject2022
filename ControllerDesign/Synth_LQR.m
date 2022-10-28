@@ -30,7 +30,7 @@ end
 
 [K,~,~] = dlqr(sys.A,sys.B,Q,R,N);
 
-sysI = ss([sys.A, zeros(nx,1); [1 0 0 1]], [sys.B; 0], eye(nx+1), zeros(nx+1, 1), sys.Ts);
+sysI = ss([sys.A, zeros(nx,1); [1*sys.Ts 0 0 1]], [sys.B; 0], eye(nx+1), zeros(nx+1, 1), sys.Ts);
 [Ki,~,~] = dlqr(sysI.A,sysI.B,Qi,R,Ni);
 
 end
