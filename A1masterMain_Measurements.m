@@ -108,9 +108,6 @@ motorSys = ss(A, B, C, D, h); clear A B C D;
 load Identification\Data\greyest_ID_pendulum_small_angle.mat
 
 pendparams = idPend(CtrlIn, Meas, h);
-% [A, B, C, D] = PendDyns(pendparams.l, pendparams.m, pendparams.c, 1/pendparams.Ip, h);
-% pendSys = ss(A, B, C, D, h); clear A B C D;
-% [pendVAF, pendRMSE] = Validation(pendSys, CtrlIn, Meas.signals.values(:,1), CtrlIn.time, x0);
 
 %%% Identify pendulum + motor
 load Identification\Data\grey_chirp_0025_075Hz_cropped.mat
@@ -191,16 +188,11 @@ nx = size(sys.A, 1); nu = 1; ny = 2;
 [K_Unst, ~] = Synth_LQR(sysUnst, "Greybox", [50, 0, 0], 5, 1);
 [~, Ki_Unst] = Synth_LQR(sysUnst, "Greybox", [75, 25, 5], 5, 4e2);
 
-% disp("LQR down controller poles are at: "); disp(abs(eig(sys.A-sys.B*K)));
-% disp("LQR up controller poles are at: "); disp(abs(eig(sys.A-sys.B*K_Unst)));
-
 % MPC controller
 load ControllerDesign\MPC mpcController
 mpcController.PredictionHorizon = 20;
 mpcController.ControlHorizon = 15;
 
-% mpcController.ManipulatedVariables.Min = -6;
-% mpcController.ManipulatedVariables.Max = 6;
 mpcController.OutputVariables(1).Min = -0.025;
 mpcController.OutputVariables(1).Max = 0.025;
 mpcController.OutputVariables(3).Min = -300;
@@ -214,7 +206,6 @@ setEstimator(mpcController, 'custom');
 
 mpcControllerUnst = mpcController;
 mpcControllerUnst.Model.Plant.A(2,1) = -sys.A(2,1);
-% mpcControllerUnst.Weights.OutputVariables = [100 0 0];
 
 load ControllerDesign\MPCI.mat
 mpcI.PredictionHorizon = 20;
@@ -235,34 +226,6 @@ setEstimator(mpcI, 'custom');
 
 mpcIUnst = mpcI;
 mpcIUnst.Model.Plant.A(2,1) = -sysI.A(2,1);
-% mpcIUnst.Model.Plant.A(4,1) = mpcIUnst.Model.Plant.A(4,1)*35;
-% mpcIUnst.Weights.OutputVariables = [10 0.5 1 100];
-
-% load ControllerDesign\MPCkal.mat
-% mpcKalman.ControlHorizon = 5;
-% mpcKalman.PredictionHorizon = 10;
-% 
-% % mpcI.ManipulatedVariables.Min = -6;
-% % mpcI.ManipulatedVariables.Max = 6;
-% mpcKalman.OutputVariables(1).Min = -0.025;
-% mpcKalman.OutputVariables(1).Max = 0.025;
-% mpcKalman.OutputVariables(2).Min = -300;
-% mpcKalman.OutputVariables(2).Max = 300;
-% 
-% mpcKalman.Weights.ManipulatedVariablesRate = 0.01;
-% mpcKalman.Weights.OutputVariables = [100 20];
-% 
-% mpcKalmanUnst = mpcKalman;
-% mpcKalmanUnst.Model.Plant.A(2,1) = -sys.A(2,1);
-% % mpcKalmanUnst.Model.Plant.A(4,1) = mpcKalmanUnst.Model.Plant.A(4,1)*35;
-% mpcKalmanUnst.Weights.OutputVariables = [5 1];
-
-% Hinf controller
-% [Hinf, ~, ~] = hinfsyn(sys, 3, 1);
-% [HinfUnst, ~, ~] = hinfsyn(sysUnst, 3, 1);
-% 
-% [HinfI, ~, ~] = hinfsyn(sysI, 4, 1);
-% [HinfUnstI, ~, ~] = hinfsyn(sysUnstI, 4, 1);
 
 %%
 % MPC_plot_proj(MPCI_prediction, MeasFull, h)

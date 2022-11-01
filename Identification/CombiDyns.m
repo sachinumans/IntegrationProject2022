@@ -1,9 +1,7 @@
 function [A, B, C, D] = CombiDyns(k, b, Idi, Ipi, c, m, l, Ts)
     g = 9.81;
     thetaStar = 0;
-    
-%     I = m*l_eq^2;
-    
+        
     Ac = [0, 1, 0;...
         -(m*g*l)*Ipi * cos(thetaStar), -c*Ipi, -b*Ipi;...
         0, 0, -b*Idi];

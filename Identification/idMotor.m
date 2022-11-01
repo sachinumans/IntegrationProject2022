@@ -1,7 +1,6 @@
 function [motorparams, x0] = idMotor(CtrlIn, Meas, h)
 
 Id_init = 3.88E-4;
-% Id_init = 3.3E-4;
 
 data = iddata(Meas.signals.values(:, 2), CtrlIn.signals.values, h);
 

@@ -2,15 +2,9 @@ function [pendparams, sys] = idPendnl(CtrlIn, Meas, h)
 
 I_init = 0.0338;
 
-% Botch together angular velocity of pendulum
+% Determine angular velocity of pendulum
 y = Meas.signals.values(:, 1);
 dy = gradient(y, h);
-% dy = dy.* max(y)/max(dy);
-
-% figure(); hold on
-% plot(y, 'k');% plot(dy, 'b');
-% plot(dy.* max(y)/max(dy), 'r--')
-
 
 % Do estimation
 data = iddata([y dy], CtrlIn.signals.values, h);
@@ -29,13 +23,11 @@ ID.Parameters(2).Maximum = 3;
 ID.Parameters(3).Maximum = 10;
 ID.Parameters(4).Maximum = 75;
 
-% ID.Parameters(3).Fixed = true;
 
 for i = 1:2; ID.InitialStates(i).Fixed = false; end
 
 
 % Get system
-% opt = nlgreyestOptions('Display', 'on');
 sys = nlgreyest(data, ID);
 
 for i = 1:2; sys.InitialStates(i).Fixed = false; end
