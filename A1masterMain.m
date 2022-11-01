@@ -55,6 +55,9 @@ else
     disp("Chosen method is PO-MOESP");
 end
 
+data = iddata(y, u, h);
+figure(); compare(data, sys, compareOptions('InitialCondition', 'e'));
+
 % save Identification\IdentifiedSystem sys
 nx = size(sys.A, 1);
 
@@ -66,6 +69,9 @@ u = CtrlIn.signals.values;
 y = Meas.signals.values;
 y(:,1) = y(:,1) - pi;
 t = CtrlIn.time;
+
+data = iddata(y, u, h);
+figure(); compare(data, sys, compareOptions('InitialCondition', 'e'));
 
 [VAFval, RMSEval] = Validation(sys, CtrlIn, y, t);
 set(gcf, "Name", "Validation 1")

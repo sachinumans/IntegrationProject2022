@@ -1,5 +1,5 @@
 function [] = MPC_plot_proj(pred, meas, h)
-
+% plots the predictions made by MPC controllers
 Np = size(pred, 1)-1;
 N = size(pred, 3);
 T = 1:h:((N+Np)*h+1);

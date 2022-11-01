@@ -17,8 +17,6 @@ N = zeros(nx,1); % Cross cost
 
     case "Greybox"
 nx = size(sys.A, 1);
-% Q = stateNorm * diag([10, 0, 1]) * stateNorm; % State cost %% quite nice
-% down, not very good up: no overshoot
 Q = stateNorm * diag(wy) * stateNorm; % State cost
 Qi = stateNormI * diag([wy wyI]) * stateNormI; % State cost
 R = inputNorm * wu; % Input cost
