@@ -1,5 +1,5 @@
 /*
- * rtwtypes.h
+ * rt_assert.h
  *
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
@@ -18,24 +18,30 @@
  * Validation result: Not run
  */
 
-#ifndef RTWTYPES_H
-#define RTWTYPES_H
-#include "tmwtypes.h"
-#ifndef POINTER_T
-#define POINTER_T
+#ifndef RTW_HEADER_rt_assert_h_
+#define RTW_HEADER_rt_assert_h_
 
-typedef void * pointer_T;
+/*=========*
+ * Asserts *
+ *=========*/
+#ifndef utAssert
+#if defined(DOASSERTS)
+#if !defined(PRINT_ASSERTS)
+#include <assert.h>
+#define utAssert(exp)                  assert(exp)
+#else
+#include <stdio.h>
 
+static void _assert(char *statement, char *file, int line)
+{
+  printf("%s in %s on line %d\n", statement, file, line);
+}
+
+#define utAssert(_EX)                  ((_EX) ? (void)0 : _assert(#_EX, __FILE__, __LINE__))
 #endif
 
-/* Logical type definitions */
-#if (!defined(__cplusplus))
-#ifndef false
-#define false                          (0U)
-#endif
-
-#ifndef true
-#define true                           (1U)
+#else
+#define utAssert(exp)                                            /* do nothing */
 #endif
 #endif
-#endif                                 /* RTWTYPES_H */
+#endif                                 /* RTW_HEADER_rt_assert_h_ */
